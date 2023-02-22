@@ -30,9 +30,9 @@ public class QLTTSV extends javax.swing.JFrame {
 
     DefaultTableModel tblModel;
     private List<SinhVien> list = new ArrayList<>();
-    private int current = 0;
+    private int current = -1;
     String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003@";
-    String nameFile = "";
+    String nameFile = null;
 
     private static final String P_EMAIL = "^([a-z0-9_\\.-]+)@([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$";
 
@@ -77,8 +77,8 @@ public class QLTTSV extends javax.swing.JFrame {
                 String diachi = rs.getString(4);
                 String email = rs.getString(5);
                 String sodt = rs.getString(6);
-                String mal = rs.getString(7);
-                String anh = rs.getString(8);
+                String mal = rs.getString(8);
+                String anh = rs.getString(7);
                 SinhVien sv = new SinhVien(masv, tensv, gt, diachi, email, sodt, mal, anh);
                 list.add(sv);
             }
@@ -94,8 +94,8 @@ public class QLTTSV extends javax.swing.JFrame {
         tblModel.setColumnIdentifiers(nav);
     }
 
-    public void upImage(String anh) {
-        ImageIcon icon = new ImageIcon("src\\fpoly\\qlsv\\Image" + anh);
+    public void upImage(String hinh) {
+        ImageIcon icon = new ImageIcon("D:\\NHAPMONKYTHUAT\\Assignment\\Nhom2_DuAn_QLSV\\src\\fpoly\\qlsv\\Image\\" + hinh);
         Image image = icon.getImage();
         ImageIcon icon1 = new ImageIcon(image.getScaledInstance(lblAnh.getWidth(), lblAnh.getHeight(), image.SCALE_SMOOTH));
         lblAnh.setIcon(icon1);
@@ -187,7 +187,7 @@ public class QLTTSV extends javax.swing.JFrame {
     public void Save() {
         if (CheckForm()) {
             try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
-                String SQL = "insert into SinhVien values(?,?,?,?,?,?,?,?)";
+                String SQL = "Exec sp_DangKy ?,'123',?,?,?,?,?,?,?";
                 PreparedStatement st = con.prepareStatement(SQL);
                 st.setString(1, txtMaSV.getText());
                 st.setString(2, txtName.getText());
@@ -201,8 +201,8 @@ public class QLTTSV extends javax.swing.JFrame {
                 st.setString(4, txtDiaChi.getText());
                 st.setString(5, txtEmail.getText());
                 st.setString(6, txtSoDT.getText());
-                st.setString(7, txtMaLop.getText());
-                st.setString(8, nameFile);
+                st.setString(8, txtMaLop.getText());
+                st.setString(7, nameFile);
                 st.executeUpdate();
                 JOptionPane.showMessageDialog(this, "Save thành công");
                 con.close();
@@ -218,7 +218,7 @@ public class QLTTSV extends javax.swing.JFrame {
 
     public void Update() {
         try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
-            String SQL = "update SinhVien set TenSV = ?, GioiTinh = ?, DiaChi = ?, Email = ?, Sđt =?, MaL = ?, Anh = ? where MaSV = ?";
+            String SQL = "update SinhVien set TenSV = ?, GioiTinh = ?, DiaChi = ?, Email = ?, Sđt =?, Anh = ?, MaL = ? where MaSV = ?";
             PreparedStatement st = con.prepareStatement(SQL);
             st.setString(1, txtName.getText());
             boolean gt;
@@ -231,8 +231,8 @@ public class QLTTSV extends javax.swing.JFrame {
             st.setString(3, txtDiaChi.getText());
             st.setString(4, txtEmail.getText());
             st.setString(5, txtSoDT.getText());
-            st.setString(6, txtMaLop.getText());
-            st.setString(7, nameFile);
+            st.setString(7, txtMaLop.getText());
+            st.setString(6, nameFile);
             st.setString(8, txtMaSV.getText());
             st.executeUpdate();
             JOptionPane.showMessageDialog(this, "Update thành công");
@@ -311,7 +311,6 @@ public class QLTTSV extends javax.swing.JFrame {
         btnNext = new javax.swing.JButton();
         btnLast = new javax.swing.JButton();
         lblBanGhi = new javax.swing.JLabel();
-        jPanel5 = new javax.swing.JPanel();
         lblAnh = new javax.swing.JLabel();
         jToolBar2 = new javax.swing.JToolBar();
         jPanel2 = new javax.swing.JPanel();
@@ -447,20 +446,7 @@ public class QLTTSV extends javax.swing.JFrame {
         lblBanGhi.setText("Record: 1 of 10");
 
         lblAnh.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lblAnh.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/avatar-icon.png"))); // NOI18N
-
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblAnh, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblAnh, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
-        );
-
-        lblAnh.getAccessibleContext().setAccessibleParent(this);
+        lblAnh.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -512,8 +498,8 @@ public class QLTTSV extends javax.swing.JFrame {
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(98, 98, 98))))))
+                                .addComponent(lblAnh, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(96, 96, 96))))))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(108, 108, 108)
                 .addComponent(btnFirst)
@@ -531,9 +517,9 @@ public class QLTTSV extends javax.swing.JFrame {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(26, 26, 26)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(28, 28, 28)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtMaSV, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -550,20 +536,21 @@ public class QLTTSV extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtDiaChi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(lblAnh, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(txtEmail, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnChonAnh, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txtSoDT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txtMaLop, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -839,7 +826,7 @@ public class QLTTSV extends javax.swing.JFrame {
 
     private void btnChonAnhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnChonAnhActionPerformed
         // TODO add your handling code here:
-        JFileChooser file = new JFileChooser("src\\fpoly\\qlsv\\Image");
+        JFileChooser file = new JFileChooser("D:\\NHAPMONKYTHUAT\\Assignment\\Nhom2_DuAn_QLSV\\src\\fpoly\\qlsv\\Image\\");
         int kq = file.showOpenDialog(file);
         if (kq == JFileChooser.APPROVE_OPTION) {
             nameFile = file.getSelectedFile().getName();
@@ -926,6 +913,7 @@ public class QLTTSV extends javax.swing.JFrame {
                     txtMaLop.setText(sv.getMaL());
                     upImage(sv.getAnh());
                     tabs.setSelectedIndex(0);
+                    txtMaSV2.setText("");
                     return;
                 }
             }
@@ -1000,7 +988,6 @@ public class QLTTSV extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;

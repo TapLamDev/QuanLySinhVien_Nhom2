@@ -5,6 +5,7 @@
 package fpoly.qlsv.gui;
 
 import fpoly.qlsv.entity.DiemSV;
+import fpoly.qlsv.entity.SinhVien;
 import java.awt.Color;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -168,6 +169,29 @@ public class QLDSV extends javax.swing.JFrame {
     private void updateInfo() {
         tblListDiem.setRowSelectionInterval(current, current);
         Display(current);
+    }
+
+    public void Save() {
+        if (CheckForm()) {
+            try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
+                String SQL = "Exec sp_ThemDiem ?, ?, ?, ? , ?";
+                PreparedStatement st = con.prepareStatement(SQL);
+                st.setString(1, txtMaSV.getText());
+                st.setString(2, txtMaMon.getText());
+                st.setDouble(3, Double.parseDouble(txtDiemLab.getText()));
+                st.setDouble(4, Double.parseDouble(txtDiemAsm.getText()));
+                st.setDouble(5, Double.parseDouble(txtDiemQuiz.getText()));
+                st.executeUpdate();
+//                JOptionPane.showMessageDialog(this, "Save thành công");
+                con.close();
+                loadDataToArray();
+                xoaForm();
+                fillTable();
+            } catch (Exception e) {
+                System.out.println(e);
+                JOptionPane.showMessageDialog(this, "Error");
+            }
+        }
     }
 
     public void Update() {
@@ -360,6 +384,11 @@ public class QLDSV extends javax.swing.JFrame {
         btnSave.setBackground(new java.awt.Color(204, 255, 204));
         btnSave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/save-icon.png"))); // NOI18N
         btnSave.setText("SAVE");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         btnUpdate.setBackground(new java.awt.Color(204, 255, 204));
         btnUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/update-icon.png"))); // NOI18N
@@ -600,6 +629,11 @@ public class QLDSV extends javax.swing.JFrame {
         );
 
         btnTimKiem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/icons8-search-32.png"))); // NOI18N
+        btnTimKiem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTimKiemActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -713,7 +747,7 @@ public class QLDSV extends javax.swing.JFrame {
 
     private void tblListDiemMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblListDiemMouseClicked
         // TODO add your handling code here:
-                if (evt.getClickCount() == 2) {
+        if (evt.getClickCount() == 2) {
             this.current = tblListDiem.getSelectedRow();
             Display(current);
             tabs.setSelectedIndex(0);
@@ -735,6 +769,37 @@ public class QLDSV extends javax.swing.JFrame {
         // TODO add your handling code here:
         this.Delete();
     }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        // TODO add your handling code here:
+        this.Save();
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTimKiemActionPerformed
+        // TODO add your handling code here:
+        if (txtMaSV2.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Bạn chưa nhập mã sinh viên!");
+            txtMaSV2.requestFocus();
+        } else if (!list.isEmpty() || current >= 0) {
+            for (DiemSV dsv : list) {
+                if (dsv.getMaSV().equalsIgnoreCase(txtMaSV2.getText())) {
+                    txtMaSV.setText(dsv.getMaSV());
+                    txtHoTen.setText(dsv.getHoTen());
+                    txtMaMon.setText(dsv.getMaMon());
+                    txtDiemLab.setText(String.valueOf(dsv.getLab()));
+                    txtDiemAsm.setText(String.valueOf(dsv.getAssment()));
+                    txtDiemQuiz.setText(String.valueOf(dsv.getQuiz()));
+                    txtDiemTB.setText(String.format("%.2f", dsv.getDiemTB()));
+                    tabs.setSelectedIndex(0);
+                    return;
+                }
+            }
+        }
+        if (!txtMaSV2.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy sinh viên!");
+            txtMaSV2.requestFocus();
+        }
+    }//GEN-LAST:event_btnTimKiemActionPerformed
 
     /**
      * @param args the command line arguments

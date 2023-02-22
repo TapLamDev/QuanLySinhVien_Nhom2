@@ -362,6 +362,9 @@
                     </Property>
                     <Property name="text" type="java.lang.String" value="SAVE"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSaveActionPerformed"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JButton" name="btnUpdate">
                   <Properties>
@@ -664,6 +667,9 @@
                       <Image iconType="3" name="/fpoly/qlsv/icon/icons8-search-32.png"/>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnTimKiemActionPerformed"/>
+                  </Events>
                 </Component>
               </SubComponents>
             </Container>
