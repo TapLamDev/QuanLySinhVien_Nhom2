@@ -4,18 +4,193 @@
  */
 package fpoly.qlsv.gui;
 
+import fpoly.qlsv.entity.Lop;
+import fpoly.qlsv.entity.SinhVien;
+import java.awt.Color;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author hoang
  */
 public class QLLH extends javax.swing.JFrame {
 
-    /**
-     * Creates new form QLLH
-     */
+    DefaultTableModel tblModel;
+    private List<Lop> list = new ArrayList<>();
+    private int current = -1;
+    String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003@";
+
     public QLLH() {
         initComponents();
         setLocationRelativeTo(null);
+        setTitle("Lớp Học");
+        initTable();
+        loadDataToArray();
+//        Display(current);
+        fillTable();
+        lblBanGhi.setText(ThongTinBanGhi());
+    }
+
+    public void Display(int i) {
+        Lop lop = list.get(i);
+        txtMaLop.setText(lop.getMaLop());
+        txtTenLop.setText(lop.getTenLop());
+        txtMaNganh.setText(lop.getMaNganh());
+    }
+
+    public void loadDataToArray() {
+        try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
+            String SQL = "SELECT * FROM Lop";
+            ResultSet rs = stmt.executeQuery(SQL);
+            list.clear();
+
+            while (rs.next()) {
+                String malop = rs.getString(1);
+                String tenlop = rs.getString(2);
+                String manganh = rs.getString(3);
+                Lop lop = new Lop(malop, tenlop, manganh);
+                list.add(lop);
+            }
+        } // Handle any errors that may have occurred.
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void initTable() {
+        tblModel = (DefaultTableModel) tblListLop.getModel();
+        String[] nav = new String[]{"Mã Lớp", "Tên Lớp", "Mã Ngành"};
+        tblModel.setColumnIdentifiers(nav);
+    }
+
+    private void updateInfo() {
+        tblListLop.setRowSelectionInterval(current, current);
+        Display(current);
+        lblBanGhi.setText(ThongTinBanGhi());
+    }
+
+    public void fillTable() {
+        tblModel.setRowCount(0);
+        for (Lop lop : list) {
+            Object[] low = new Object[]{lop.getMaLop(), lop.getTenLop(), lop.getMaNganh()};
+            tblModel.addRow(low);
+        }
+    }
+
+    public boolean CheckForm() {
+        if (txtMaLop.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Chưa nhập mã lớp");
+            txtMaLop.setBackground(Color.YELLOW);
+            return false;
+        } else {
+            txtMaLop.setBackground(Color.WHITE);
+        }
+        for (Lop lop : list) {
+            if (lop.getMaLop().equals(txtMaLop.getText())) {
+                JOptionPane.showMessageDialog(this, "Mã lớp đã tồn tại!");
+                return false;
+            }
+        }
+        if (txtTenLop.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Chưa nhập tên lớp");
+            txtTenLop.setBackground(Color.YELLOW);
+            return false;
+        } else {
+            txtTenLop.setBackground(Color.WHITE);
+        }
+        if (txtMaNganh.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Chưa nhập mã ngành");
+            txtNganh.setBackground(Color.YELLOW);
+            return false;
+        } else {
+            txtMaNganh.setBackground(Color.WHITE);
+        }
+
+        return true;
+    }
+
+    public void xoaForm() {
+        txtMaLop.setText("");
+        txtTenLop.setText("");
+        txtMaNganh.setText("");
+    }
+
+    public void Save() {
+        if (CheckForm()) {
+            try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
+                String SQL = "Insert into Lop values (?,?,?)";
+                PreparedStatement st = con.prepareStatement(SQL);
+                st.setString(1, txtMaLop.getText());
+                st.setString(2, txtTenLop.getText());
+                st.setString(3, txtNganh.getText());
+                st.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Save thành công");
+                con.close();
+                loadDataToArray();
+                xoaForm();
+                fillTable();
+            } catch (Exception e) {
+                System.out.println(e);
+                JOptionPane.showMessageDialog(this, "Error");
+            }
+        }
+    }
+
+    public void Update() {
+        try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
+            String SQL = "update Lop set TenL = ?, MaNganh = ? where MaL = ?";
+            PreparedStatement st = con.prepareStatement(SQL);
+            st.setString(1, txtTenLop.getText());
+            st.setString(2, txtMaNganh.getText());
+            st.setString(3, txtMaLop.getText());
+            st.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Update thành công");
+            con.close();
+            loadDataToArray();
+            fillTable();
+        } catch (Exception e) {
+            System.out.println(e);
+            JOptionPane.showMessageDialog(this, "Error");
+        }
+    }
+
+    public void Delete() {
+        if (txtMaLop.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Chưa nhập mã sv");
+            txtMaLop.requestFocus();
+            return;
+        }
+        try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
+            String SQL = "delete Lop where MaL = ?";
+            PreparedStatement st = con.prepareStatement(SQL);
+            st.setString(1, txtMaLop.getText());
+            st.execute();
+            JOptionPane.showMessageDialog(this, "Xóa thành công");
+            con.close();
+            loadDataToArray();
+            fillTable();
+            Display(current--);
+
+        } // Handle any errors that may have occurred.
+        catch (Exception e) {
+            System.out.println(e);
+            JOptionPane.showMessageDialog(this, "Error");
+        }
+    }
+
+    public String ThongTinBanGhi() {
+        return "Record: " + (current + 1) + " of " + list.size();
     }
 
     /**
@@ -49,6 +224,7 @@ public class QLLH extends javax.swing.JFrame {
         btnLast = new javax.swing.JButton();
         txtNganh = new javax.swing.JTextField();
         jButton10 = new javax.swing.JButton();
+        lblBanGhi = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -85,17 +261,42 @@ public class QLLH extends javax.swing.JFrame {
 
         btnNew.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/add-icon.png"))); // NOI18N
         btnNew.setText("NEW");
+        btnNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNewActionPerformed(evt);
+            }
+        });
 
         btnSave.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/save-icon.png"))); // NOI18N
         btnSave.setText("SAVE");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         btnUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/update-icon.png"))); // NOI18N
         btnUpdate.setText("UPDATE");
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
 
         btnDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/delete-icon.png"))); // NOI18N
         btnDelete.setText("DELETE");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         btnTimKiem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/icons8-search-32.png"))); // NOI18N
+        btnTimKiem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTimKiemActionPerformed(evt);
+            }
+        });
 
         tblListLop.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -116,23 +317,48 @@ public class QLLH extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tblListLop.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblListLopMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblListLop);
 
         btnFirst.setBackground(new java.awt.Color(204, 255, 204));
         btnFirst.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/First-icon.png"))); // NOI18N
         btnFirst.setBorderPainted(false);
+        btnFirst.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFirstActionPerformed(evt);
+            }
+        });
 
         btnPrev.setBackground(new java.awt.Color(204, 255, 204));
         btnPrev.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/Previous-icon.png"))); // NOI18N
         btnPrev.setBorderPainted(false);
+        btnPrev.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPrevActionPerformed(evt);
+            }
+        });
 
         btnNext.setBackground(new java.awt.Color(204, 255, 204));
         btnNext.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/Next-icon.png"))); // NOI18N
         btnNext.setBorderPainted(false);
+        btnNext.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNextActionPerformed(evt);
+            }
+        });
 
         btnLast.setBackground(new java.awt.Color(204, 255, 204));
         btnLast.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/Last-icon.png"))); // NOI18N
         btnLast.setBorderPainted(false);
+        btnLast.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLastActionPerformed(evt);
+            }
+        });
 
         jButton10.setText("EXIT");
         jButton10.addActionListener(new java.awt.event.ActionListener() {
@@ -140,6 +366,10 @@ public class QLLH extends javax.swing.JFrame {
                 jButton10ActionPerformed(evt);
             }
         });
+
+        lblBanGhi.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        lblBanGhi.setForeground(new java.awt.Color(255, 0, 51));
+        lblBanGhi.setText("Record: 1 of 10");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -181,6 +411,8 @@ public class QLLH extends javax.swing.JFrame {
                 .addComponent(btnNext)
                 .addGap(36, 36, 36)
                 .addComponent(btnLast)
+                .addGap(18, 18, 18)
+                .addComponent(lblBanGhi, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton10)
                 .addGap(26, 26, 26))
@@ -230,8 +462,10 @@ public class QLLH extends javax.swing.JFrame {
                     .addComponent(btnLast)
                     .addComponent(btnPrev)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(8, 8, 8)
-                        .addComponent(jButton10)))
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton10)
+                            .addComponent(lblBanGhi, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
@@ -257,6 +491,95 @@ public class QLLH extends javax.swing.JFrame {
         // TODO add your handling code here:
         System.exit(0);
     }//GEN-LAST:event_jButton10ActionPerformed
+
+    private void btnFirstActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFirstActionPerformed
+        // TODO add your handling code here:
+        current = 0;
+        Display(current);
+        updateInfo();
+    }//GEN-LAST:event_btnFirstActionPerformed
+
+    private void btnPrevActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrevActionPerformed
+        // TODO add your handling code here:
+        current--;
+        if (current < 0) {
+//            JOptionPane.showMessageDialog(this, "Đang ở đầu danh sách");
+//            return;
+            btnLastActionPerformed(evt);
+        }
+        Display(current);
+        updateInfo();
+    }//GEN-LAST:event_btnPrevActionPerformed
+
+    private void btnNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextActionPerformed
+        // TODO add your handling code here:
+        current++;
+        if (current >= list.size()) {
+//            JOptionPane.showMessageDialog(this, "Đang ở cuổi");
+//            return;
+            btnFirstActionPerformed(evt);
+        }
+        Display(current);
+        updateInfo();
+    }//GEN-LAST:event_btnNextActionPerformed
+
+    private void btnLastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLastActionPerformed
+        // TODO add your handling code here:
+        current = list.size() - 1;
+        Display(current);
+        updateInfo();
+    }//GEN-LAST:event_btnLastActionPerformed
+
+    private void tblListLopMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblListLopMouseClicked
+        // TODO add your handling code here:
+        if (evt.getClickCount() == 2) {
+            this.current = tblListLop.getSelectedRow();
+            Display(current);
+            updateInfo();
+        }
+    }//GEN-LAST:event_tblListLopMouseClicked
+
+    private void btnTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTimKiemActionPerformed
+        // TODO add your handling code here:
+        if (txtNganh.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Bạn chưa nhập mã lớp");
+            txtNganh.requestFocus();
+        } else if (!list.isEmpty() || current >= 0) {
+            for (Lop lop : list) {
+                if (lop.getMaLop().equalsIgnoreCase(txtNganh.getText())) {
+                    txtMaLop.setText(lop.getMaLop());
+                    txtTenLop.setText(lop.getTenLop());
+                    txtMaNganh.setText(lop.getMaNganh());
+                    txtNganh.setText("");
+                    return;
+                }
+            }
+        }
+        if (!txtNganh.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Không tìm thấy lớp!");
+            txtNganh.requestFocus();
+        }
+    }//GEN-LAST:event_btnTimKiemActionPerformed
+
+    private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
+        // TODO add your handling code here:
+        this.xoaForm();
+    }//GEN-LAST:event_btnNewActionPerformed
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        // TODO add your handling code here:
+        this.Save();
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        // TODO add your handling code here:
+        this.Update();
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        // TODO add your handling code here:
+        this.Delete();
+    }//GEN-LAST:event_btnDeleteActionPerformed
 
     /**
      * @param args the command line arguments
@@ -311,6 +634,7 @@ public class QLLH extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblBanGhi;
     private javax.swing.JTable tblListLop;
     private javax.swing.JTextField txtMaLop;
     private javax.swing.JTextField txtMaNganh;

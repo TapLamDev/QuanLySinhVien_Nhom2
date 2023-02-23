@@ -33,6 +33,7 @@ public class QLDSV extends javax.swing.JFrame {
     public QLDSV() {
         initComponents();
         setLocationRelativeTo(null);
+        setTitle("Quản lý điểm");
         initTable();
         loadDataToArray();
         fillTable();
@@ -96,12 +97,12 @@ public class QLDSV extends javax.swing.JFrame {
         } else {
             txtMaSV.setBackground(Color.WHITE);
         }
-        for (DiemSV sv : list) {
-            if (sv.getMaSV().equals(txtMaSV.getText())) {
-                JOptionPane.showMessageDialog(this, "Mã nhân viên đã tồn tại!");
-                return false;
-            }
-        }
+//        for (DiemSV sv : list) {
+//            if (sv.getMaSV().equals(txtMaSV.getText())) {
+//                JOptionPane.showMessageDialog(this, "Mã nhân viên đã tồn tại!");
+//                return false;
+//            }
+//        }
 //        if (txtName.getText().equals("")) {
 //            JOptionPane.showMessageDialog(this, "Chưa nhập Họ tên");
 //            txtName.setBackground(Color.YELLOW);

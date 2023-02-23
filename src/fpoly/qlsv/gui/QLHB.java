@@ -4,18 +4,220 @@
  */
 package fpoly.qlsv.gui;
 
+import fpoly.qlsv.entity.HocBong;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author hoang
  */
 public class QLHB extends javax.swing.JFrame {
 
-    /**
-     * Creates new form QLHB
-     */
+    DefaultTableModel tblModel;
+    private ArrayList<HocBong> list = new ArrayList<>();
+    String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003;encrypt=true;trustServerCertificate=true";
+    private int index = -1;
+
     public QLHB() {
         initComponents();
         setLocationRelativeTo(null);
+    }
+
+    public void initTable() {
+        tblModel = (DefaultTableModel) tblHocBong.getModel();
+        String[] nav = new String[]{"Mã SV", "Ngành", "Loại học bổng", "Xếp loại", "Ngày nhận"};
+        tblModel.setColumnIdentifiers(nav);
+    }
+
+    public void fillToTable() {
+        DefaultTableModel tblModel = (DefaultTableModel) tblHocBong.getModel();
+        tblModel.setRowCount(0);
+        for (HocBong h : list) {
+            Object[] row = new Object[]{h.getMaSV(), h.getNganh(), h.getLoaiHocBong(), h.getXepLoai(), h.getNgayNhan()};
+            tblModel.addRow(row);
+        }
+    }
+
+    public void loadDataToArray() {
+        try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
+            String SQL = "Select * From HocBong";
+            ResultSet rs = stmt.executeQuery(SQL);
+            list.clear();
+
+            while (rs.next()) {
+                String masv = rs.getString(1);
+                String Nganh = rs.getString(2);
+                String loaihocBong = rs.getString(3);
+                String xeploai = rs.getString(4);
+                String ngaynhan = rs.getString(5);
+                HocBong hb = new HocBong(masv, Nganh, loaihocBong, xeploai, ngaynhan);
+                list.add(hb);
+            }
+        } // Handle any errors that may have occurred.
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showTable(int index) {
+        txtMaSV.setText(list.get(index).getMaSV());
+        txtNganh.setText(list.get(index).getNganh());
+        txtLoaiHB.setText(list.get(index).getLoaiHocBong());
+        txtXepLoai.setText(list.get(index).getXepLoai());
+        txtNgayNhan.setText(String.valueOf(list.get(index).getNgayNhan()));
+
+    }
+
+    public boolean validateForm() {
+        if (txtMaSV.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Chưa nhập mã sinh viên!");
+            txtMaSV.requestFocus();
+            return false;
+        }
+        if (txtNganh.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Chưa nhập ngành!");
+            txtNganh.requestFocus();
+            return false;
+        }
+        if (txtLoaiHB.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Chưa nhập loại học bổng!");
+            txtLoaiHB.requestFocus();
+            return false;
+        }
+        if (txtXepLoai.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Chưa nhập xếp loại!");
+            txtXepLoai.requestFocus();
+            return false;
+        }
+        if (txtNgayNhan.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Chưa nhập ngày nhận!");
+            txtNgayNhan.requestFocus();
+            return false;
+        }
+        return true;
+
+    }
+
+    public void newForm() {
+        txtMaSV.setText("");
+        txtNganh.setText("");
+        txtLoaiHB.setText("");
+        txtXepLoai.setText("");
+        txtNgayNhan.setText("");
+    }
+
+    public void save() {
+        if (validateForm()) {
+            try (java.sql.Connection con = DriverManager.getConnection(connectionUrl);) {
+                String sql = "Insert Into HocBong(MaSV,MaNganh,LoaiHocBong,XepLoai,NgayNhan) Values (?,?,?,?,?)";
+                PreparedStatement ps = con.prepareStatement(sql);
+                ps.setString(1, txtMaSV.getText());
+                ps.setString(2, txtNganh.getText());
+                ps.setString(3, txtLoaiHB.getText());
+                ps.setString(4, txtXepLoai.getText());
+                ps.setString(5, txtNgayNhan.getText());
+
+                int kq = ps.executeUpdate();
+                if (kq == 1) {
+                    JOptionPane.showMessageDialog(this, "Lưu thành công!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Lưu thất bại!");
+                }
+                ps.close();
+                con.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void delete() {
+        if (!txtMaSV.getText().isEmpty()) {
+            try (java.sql.Connection con = DriverManager.getConnection(connectionUrl);) {
+                String sql = "Delete HocBong where MaSV = ?";
+                PreparedStatement ps = con.prepareStatement(sql);
+
+                ps.setString(1, txtMaSV.getText());
+                int kq = ps.executeUpdate();
+                if (kq == 1) {
+                    JOptionPane.showMessageDialog(this, "Xóa thành công!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Xóa thất bại!");
+                }
+                ps.close();
+                con.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void update() {
+        if (validateForm()) {
+            try (java.sql.Connection con = DriverManager.getConnection(connectionUrl);) {
+                String sql = "Update HocBong Set MaSV = ?, Nganh =?, LoaiHocBong = ?, XepLoai = ?, NgayNhan = ? where MaSV = ?";
+                PreparedStatement ps = con.prepareStatement(sql);
+
+                ps.setString(1, txtMaSV.getText());
+                ps.setString(2, txtNganh.getText());
+                ps.setString(3, txtLoaiHB.getText());
+                ps.setString(4, txtXepLoai.getText());
+                ps.setString(5, txtNgayNhan.getText());
+
+                int kq = ps.executeUpdate();
+                if (kq == 1) {
+                    JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại!");
+                }
+                ps.close();
+                con.close();
+                loadDataToArray();
+
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    public void first() {
+        index = 0;
+        tblHocBong.setRowSelectionInterval(index, index);
+        showTable(index);
+    }
+
+    public void last() {
+        index = list.size() - 1;
+        tblHocBong.setRowSelectionInterval(index, index);
+        showTable(index);
+    }
+
+    public void next() {
+        if (index == list.size() - 1) {
+            first();
+        } else {
+            index++;
+        }
+        tblHocBong.setRowSelectionInterval(index, index);
+        showTable(index);
+    }
+
+    public void prev() {
+        if (index == 0) {
+            last();
+        } else {
+            index--;
+        }
+        tblHocBong.setRowSelectionInterval(index, index);
+        showTable(index);
     }
 
     /**
@@ -221,18 +423,18 @@ public class QLHB extends javax.swing.JFrame {
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                                .addComponent(btnThem, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(btnSua, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(btnLuu))
-                                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
                                                 .addComponent(jLabel6)
                                                 .addGap(36, 36, 36)
-                                                .addComponent(txtNgayNhan, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                        .addGap(6, 6, 6)
+                                                .addComponent(txtNgayNhan, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addComponent(btnThem, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(btnSua)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(btnLuu, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addComponent(btnXoa))
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -292,10 +494,10 @@ public class QLHB extends javax.swing.JFrame {
                     .addComponent(txtNgayNhan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnThem)
-                    .addComponent(btnLuu)
-                    .addComponent(btnSua)
-                    .addComponent(btnXoa))
+                    .addComponent(btnThem, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnLuu, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSua, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnXoa, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(33, 33, 33)
@@ -329,62 +531,62 @@ public class QLHB extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tblHocBongMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblHocBongMouseClicked
-//        index = tblHocBong.getSelectedRow();
-//        showTable(index);
+        index = tblHocBong.getSelectedRow();
+        showTable(index);
     }//GEN-LAST:event_tblHocBongMouseClicked
 
     private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
-//        newForm();
+        newForm();
     }//GEN-LAST:event_btnThemActionPerformed
 
     private void btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaActionPerformed
-//        update();
+        update();
     }//GEN-LAST:event_btnSuaActionPerformed
 
     private void btnXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaActionPerformed
-//        delete();
-//        newForm();
+        delete();
+        newForm();
     }//GEN-LAST:event_btnXoaActionPerformed
 
     private void btnLuuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLuuActionPerformed
-//        try {
-//            save();
-//            load_data();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        try {
+            save();
+            loadDataToArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_btnLuuActionPerformed
 
     private void btnFirstActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFirstActionPerformed
-//        try {
-//            first();
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(this, e.getMessage());
-//        }
+        try {
+            first();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
     }//GEN-LAST:event_btnFirstActionPerformed
 
     private void btnPrevActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrevActionPerformed
-//        try {
-//            prev();
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(this, e.getMessage());
-//        }
+        try {
+            prev();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
     }//GEN-LAST:event_btnPrevActionPerformed
 
     private void btnNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextActionPerformed
-//        try {
-//            next();
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(this, e.getMessage());
-//        }
+        try {
+            next();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
     }//GEN-LAST:event_btnNextActionPerformed
 
     private void btnLastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLastActionPerformed
-//        try {
-//            last();
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(this, e.getMessage());
-//        }
+        try {
+            last();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
     }//GEN-LAST:event_btnLastActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed

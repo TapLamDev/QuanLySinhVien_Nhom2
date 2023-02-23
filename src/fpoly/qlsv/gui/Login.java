@@ -4,18 +4,69 @@
  */
 package fpoly.qlsv.gui;
 
+import fpoly.qlsv.entity.Account;
+import java.awt.Color;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author hoang
  */
 public class Login extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Login
-     */
+int current = 0;
+    public boolean check = false;
+    ArrayList<Account> listAc = new ArrayList<>();
+    String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003@;encrypt=true;trustServerCertificate=true";
+    
     public Login() {
         initComponents();
         setLocationRelativeTo(null);
+    }
+        public void LoadDataAccountsToArray() //doc tat ca du lieu trong table account vao arraylist
+    {
+        try (Connection con = DriverManager.getConnection(connectionUrl);Statement stmt = con.createStatement();) {
+            String sql = "select * From Accounts";
+            ResultSet rs = stmt.executeQuery(sql);
+            listAc.clear();
+            while (rs.next()) {
+                String username = rs.getString(1);
+                String pass = rs.getString(2);
+                Account ac = new Account(username, pass);
+                listAc.add(ac);
+            }
+            con.close();
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+    public boolean checkNull()
+    {
+        if (txtUserName.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập tên tài khoản!");
+            txtUserName.requestFocus();
+            txtUserName.setBackground(Color.YELLOW);
+            return false;
+        }
+        if (txtPassword.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập password!");            
+            txtPassword.setBackground(Color.YELLOW);
+            return false;
+        }
+        return true;
+    }
+
+    private void checkLogin() {
+//        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        if (txtUserName.getText().equals("SV001") && txtPassword.getText().equals("123")) {
+            System.out.println("thanh cong");
+        }
     }
 
     /**
@@ -152,11 +203,11 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-//        checkLogin();
+        checkLogin();
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void btnLoginKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnLoginKeyPressed
-//        checkLogin();
+        checkLogin();
     }//GEN-LAST:event_btnLoginKeyPressed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed

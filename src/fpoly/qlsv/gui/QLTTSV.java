@@ -39,6 +39,7 @@ public class QLTTSV extends javax.swing.JFrame {
     public QLTTSV() {
         initComponents();
         setLocationRelativeTo(null);
+        setTitle("Quản lý thông tin sinh viên");
         initTable();
         loadDataToArray();
 //        Display(current);
@@ -187,7 +188,7 @@ public class QLTTSV extends javax.swing.JFrame {
     public void Save() {
         if (CheckForm()) {
             try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
-                String SQL = "Exec sp_DangKy ?,'123',?,?,?,?,?,?,?";
+                String SQL = "Exec sp_DangKy ?,'123',?,?,?,?,?,?,?,''";
                 PreparedStatement st = con.prepareStatement(SQL);
                 st.setString(1, txtMaSV.getText());
                 st.setString(2, txtName.getText());
@@ -218,7 +219,7 @@ public class QLTTSV extends javax.swing.JFrame {
 
     public void Update() {
         try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
-            String SQL = "update SinhVien set TenSV = ?, GioiTinh = ?, DiaChi = ?, Email = ?, Sđt =?, Anh = ?, MaL = ? where MaSV = ?";
+            String SQL = "update SinhVien set TenSV = ?, GioiTinh = ?, DiaChi = ?, Email = ?, Sdt =?, Anh = ?, MaL = ? where MaSV = ?";
             PreparedStatement st = con.prepareStatement(SQL);
             st.setString(1, txtName.getText());
             boolean gt;
@@ -235,6 +236,7 @@ public class QLTTSV extends javax.swing.JFrame {
             st.setString(6, nameFile);
             st.setString(8, txtMaSV.getText());
             st.executeUpdate();
+            this.xoaForm();
             JOptionPane.showMessageDialog(this, "Update thành công");
             con.close();
             loadDataToArray();
@@ -738,7 +740,7 @@ public class QLTTSV extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel1)
-                .addGap(155, 155, 155))
+                .addGap(182, 182, 182))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
