@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -26,7 +27,6 @@ public class QLDSV extends javax.swing.JFrame {
 
     DefaultTableModel tblModel;
     private List<DiemSV> list = new ArrayList<>();
-//    private List<Students> listt = new ArrayList<>();
     private int current = 0;
     String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003@";
 
@@ -35,6 +35,7 @@ public class QLDSV extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         setTitle("Quản lý điểm");
         initTable();
+        loaddataToCombobox();
         loadDataToArray();
         fillTable();
     }
@@ -43,29 +44,48 @@ public class QLDSV extends javax.swing.JFrame {
         DiemSV dsv = list.get(i);
         txtMaSV.setText(dsv.getMaSV());
         txtHoTen.setText(dsv.getHoTen());
-        txtMaMon.setText(dsv.getMaMon());
+        cboTenMon.setSelectedItem(dsv.getTenMon());
         txtDiemLab.setText(String.valueOf(dsv.getLab()));
         txtDiemAsm.setText(String.valueOf(dsv.getAssment()));
         txtDiemQuiz.setText(String.valueOf(dsv.getQuiz()));
         txtDiemTB.setText(String.format("%.2f", dsv.getDiemTB()));
     }
 
-    public void loadDataToArray() {
+    public void loaddataToCombobox() {
+
         try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
-            String sql = " select SinhVien.MaSV, TenSV, MonHoc.MaMon,Lab, Assment,Quiz  from Diem\n"
-                    + "join SinhVien on SinhVien.MaSV = Diem.MaSV join MonHoc on MonHoc.MaMon = Diem.MaMon";
+            String sql = "Select TenMon from MonHoc";
 //            PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery(sql);
             list.clear();
             while (rs.next()) {
-                String masv = rs.getString(1);
-                String hoten = rs.getString(2);
-                String maMon = rs.getString(3);
-                double lab = rs.getDouble(4);
-                double ASM = rs.getDouble(5);
-                double quiz = rs.getDouble(6);
+                cboTenMon.addItem(rs.getString(1));
+
+            }
+
+        } // Handle any errors that may have occurred.
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void loadDataToArray() {
+        try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
+            String sql = " select ID, SinhVien.MaSV, TenSV,TenMon,Lab, Assment,Quiz  from Diem join SinhVien on SinhVien.MaSV = Diem.MaSV ";
+//            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery(sql);
+            list.clear();
+            while (rs.next()) {
+                int ID = rs.getInt(1);
+                String masv = rs.getString(2);
+                String hoten = rs.getString(3);
+                String tenMon = rs.getString(4);
+                double lab = rs.getDouble(5);
+                double ASM = rs.getDouble(6);
+                double quiz = rs.getDouble(7);
                 double diemtb = (lab + ASM + quiz) / 3;
-                DiemSV dsv = new DiemSV(masv, hoten, maMon, lab, ASM, quiz, diemtb);
+                DiemSV dsv = new DiemSV(ID, masv, hoten, tenMon, lab, ASM, quiz, diemtb);
                 list.add(dsv);
             }
 
@@ -77,14 +97,14 @@ public class QLDSV extends javax.swing.JFrame {
 
     public void initTable() {
         tblModel = (DefaultTableModel) tblListDiem.getModel();
-        String[] nav = new String[]{"Mã Sinh Viên", "Họ và Tên", "Mã Môn", "Điểm Lab", "Điểm ASM", "Điểm Quiz", "Điểm TB"};
+        String[] nav = new String[]{"STT", "Mã Sinh Viên", "Họ và Tên", "Tên Môn", "Điểm Lab", "Điểm ASM", "Điểm Quiz", "Điểm TB"};
         tblModel.setColumnIdentifiers(nav);
     }
 
     public void fillTable() {
         tblModel.setRowCount(0);
         for (DiemSV dsv : list) {
-            Object[] row = new Object[]{dsv.getMaSV(), dsv.getHoTen(), dsv.getMaMon(), dsv.getLab(), dsv.getAssment(), dsv.getQuiz(), String.format("%.2f", dsv.getDiemTB())};
+            Object[] row = new Object[]{dsv.getId(), dsv.getMaSV(), dsv.getHoTen(), dsv.getTenMon(), dsv.getLab(), dsv.getAssment(), dsv.getQuiz(), String.format("%.2f", dsv.getDiemTB())};
             tblModel.addRow(row);
         }
     }
@@ -169,16 +189,16 @@ public class QLDSV extends javax.swing.JFrame {
 
     private void updateInfo() {
         tblListDiem.setRowSelectionInterval(current, current);
-        Display(current);
+//        Display(current);
     }
 
     public void Save() {
         if (CheckForm()) {
             try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
-                String SQL = "Exec sp_ThemDiem ?, ?, ?, ? , ?";
+                String SQL = "Insert into Diem values ?,?,?,?,?";
                 PreparedStatement st = con.prepareStatement(SQL);
                 st.setString(1, txtMaSV.getText());
-                st.setString(2, txtMaMon.getText());
+                st.setString(2, cboTenMon.getSelectedItem().toString().trim());
                 st.setDouble(3, Double.parseDouble(txtDiemLab.getText()));
                 st.setDouble(4, Double.parseDouble(txtDiemAsm.getText()));
                 st.setDouble(5, Double.parseDouble(txtDiemQuiz.getText()));
@@ -197,9 +217,9 @@ public class QLDSV extends javax.swing.JFrame {
 
     public void Update() {
         try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
-            String SQL = "update Diem set MaMon = ?, Lab = ?, Assment =?, Quiz = ? where MaSV = ?";
+            String SQL = "update Diem set TenMon = ?, Lab = ?, Assment =?, Quiz = ? where MaSV = ?";
             PreparedStatement st = con.prepareStatement(SQL);
-            st.setString(1, txtMaMon.getText());
+//            st.setString(1, txtMaMon.getText());
             st.setString(2, txtDiemLab.getText());
             st.setString(3, txtDiemAsm.getText());
             st.setString(4, txtDiemQuiz.getText());
@@ -229,7 +249,7 @@ public class QLDSV extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Xóa thành công");
             con.close();
             loadDataToArray();
-            Display(current--);
+//            Display(current--);
             fillTable();
 
         } // Handle any errors that may have occurred.
@@ -242,7 +262,7 @@ public class QLDSV extends javax.swing.JFrame {
     public void xoaForm() {
         txtMaSV.setText("");
         txtHoTen.setText("");
-        txtMaMon.setText("");
+        cboTenMon.setSelectedIndex(0);
         txtDiemLab.setText("");
         txtDiemAsm.setText("");
         txtDiemQuiz.setText("");
@@ -284,7 +304,7 @@ public class QLDSV extends javax.swing.JFrame {
         btnPrev = new javax.swing.JButton();
         btnNext = new javax.swing.JButton();
         btnLast = new javax.swing.JButton();
-        txtMaMon = new javax.swing.JTextField();
+        cboTenMon = new javax.swing.JComboBox<>();
         jToolBar5 = new javax.swing.JToolBar();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -339,7 +359,7 @@ public class QLDSV extends javax.swing.JFrame {
         jLabel28.setText("Điểm ASM:");
 
         jLabel29.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        jLabel29.setText("Mã Môn:");
+        jLabel29.setText("Tên Môn:");
 
         jLabel30.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel30.setText("Điểm Lab:");
@@ -351,12 +371,23 @@ public class QLDSV extends javax.swing.JFrame {
         jLabel32.setText("Điểm Quiz:");
 
         txtMaSV.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtMaSVFocusGained(evt);
+            }
             public void focusLost(java.awt.event.FocusEvent evt) {
                 txtMaSVFocusLost(evt);
             }
         });
 
         txtHoTen.setEditable(false);
+        txtHoTen.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtHoTenFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtHoTenFocusLost(evt);
+            }
+        });
 
         txtDiemQuiz.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusLost(java.awt.event.FocusEvent evt) {
@@ -436,6 +467,8 @@ public class QLDSV extends javax.swing.JFrame {
             }
         });
 
+        cboTenMon.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Chọn Môn Học" }));
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -463,16 +496,14 @@ public class QLDSV extends javax.swing.JFrame {
                         .addComponent(jLabel32, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel28, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtMaSV, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
-                            .addComponent(txtHoTen)
-                            .addComponent(txtDiemLab)
-                            .addComponent(txtDiemQuiz)
-                            .addComponent(txtMaMon))
-                        .addComponent(txtDiemTB, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(txtDiemAsm, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txtMaSV, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                    .addComponent(txtHoTen)
+                    .addComponent(txtDiemLab)
+                    .addComponent(txtDiemQuiz)
+                    .addComponent(txtDiemTB, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                    .addComponent(txtDiemAsm, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                    .addComponent(cboTenMon, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
@@ -489,58 +520,51 @@ public class QLDSV extends javax.swing.JFrame {
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(26, 26, 26)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel27, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtMaSV, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtHoTen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(49, 49, 49)
-                        .addComponent(btnNew, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(26, 26, 26)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel27, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtMaSV, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel26, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtHoTen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel29, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cboTenMon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel30, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtDiemLab, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtDiemAsm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtDiemQuiz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel32, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtDiemTB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel31, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel29, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtMaMon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(6, 6, 6))
-                    .addComponent(btnSave, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(28, 28, 28)
-                        .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(26, 26, 26)
-                        .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel30, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtDiemLab, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtDiemAsm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtDiemQuiz, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel32, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtDiemTB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel31, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnPrev, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnFirst, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnNext, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnLast, javax.swing.GroupLayout.Alignment.TRAILING))
-                        .addGap(31, 31, 31))))
+                    .addComponent(btnPrev, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnFirst, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnNext, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnLast, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGap(31, 31, 31))
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGap(121, 121, 121)
+                .addComponent(btnNew, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jToolBar4.add(jPanel5);
@@ -724,13 +748,15 @@ public class QLDSV extends javax.swing.JFrame {
 
     private void txtMaSVFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtMaSVFocusLost
         // TODO add your handling code here:
-        if (!list.isEmpty() || current >= 0) {
+
+        if (!list.isEmpty()) {
             for (DiemSV sv : list) {
                 if (sv.getMaSV().equalsIgnoreCase(txtMaSV.getText())) {
-                    txtHoTen.setText(sv.getHoTen() + "");
+                    txtHoTen.setText(sv.getHoTen());
                 }
             }
         }
+
     }//GEN-LAST:event_txtMaSVFocusLost
 
     private void txtDiemQuizFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtDiemQuizFocusLost
@@ -781,26 +807,82 @@ public class QLDSV extends javax.swing.JFrame {
         if (txtMaSV2.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "Bạn chưa nhập mã sinh viên!");
             txtMaSV2.requestFocus();
-        } else if (!list.isEmpty() || current >= 0) {
-            for (DiemSV dsv : list) {
-                if (dsv.getMaSV().equalsIgnoreCase(txtMaSV2.getText())) {
-                    txtMaSV.setText(dsv.getMaSV());
-                    txtHoTen.setText(dsv.getHoTen());
-                    txtMaMon.setText(dsv.getMaMon());
-                    txtDiemLab.setText(String.valueOf(dsv.getLab()));
-                    txtDiemAsm.setText(String.valueOf(dsv.getAssment()));
-                    txtDiemQuiz.setText(String.valueOf(dsv.getQuiz()));
-                    txtDiemTB.setText(String.format("%.2f", dsv.getDiemTB()));
-                    tabs.setSelectedIndex(0);
-                    return;
+//        } else if (!list.isEmpty() || current >= 0) {
+//            for (DiemSV dsv : list) {
+//                if (dsv.getMaSV().equalsIgnoreCase(txtMaSV2.getText())) {
+////                    txtMaSV.setText(dsv.getMaSV());
+////                    txtHoTen.setText(dsv.getHoTen());
+//////                    txtMaMon.setText(dsv.getMaMon());
+////                    txtDiemLab.setText(String.valueOf(dsv.getLab()));
+////                    txtDiemAsm.setText(String.valueOf(dsv.getAssment()));
+////                    txtDiemQuiz.setText(String.valueOf(dsv.getQuiz()));
+////                    txtDiemTB.setText(String.format("%.2f", dsv.getDiemTB()));
+//////                    tabs.setSelectedIndex(0);
+////                    return;
+//                        fillTable();
+//                        updateInfo();
+//                        tblModel.fireTableDataChanged(); 
+//                        return;
+//                }
+//            }
+//        }
+        } else {
+            try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
+                String SQL = "select ID,Diem.MaSV, TenSV, Diem.TenMon, Lab,Assment,Quiz,(Lab + Assment + Quiz)/3 as 'DiemTB'  from Diem INNER JOIN SinhVien on Diem.MaSV = SinhVien.MaSV where Diem.MaSV like ?";
+                PreparedStatement pr = con.prepareStatement(SQL);
+
+                String search = "%";
+                if (!txtMaSV2.getText().equals("")) {
+                    search += txtMaSV2.getText() + "%";
                 }
+                pr.setString(1, search);
+
+                ResultSet rs = pr.executeQuery();
+                tblModel.setRowCount(0);
+
+                while (rs.next()) {
+                    tblModel.addRow(new Object[]{
+                        rs.getInt("ID"),
+                        rs.getString("MaSV"),
+                        rs.getString("TenSV"),
+                        rs.getString("TenMon"),
+                        rs.getDouble("Lab"),
+                        rs.getDouble("Assment"),
+                        rs.getDouble("Quiz"),
+                        rs.getDouble("DiemTB")
+                    });
+                }
+
+                tblModel.fireTableDataChanged();
+
+            } // Handle any errors that may have occurred.
+            catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, e.getMessage());
             }
+
         }
-        if (!txtMaSV2.getText().equals("")) {
-            JOptionPane.showMessageDialog(this, "Không tìm thấy sinh viên!");
-            txtMaSV2.requestFocus();
+        if (txtMaSV2.getText().equalsIgnoreCase("")) {
+            fillTable();
         }
+        txtMaSV2.setText("");
+//        if (!txtMaSV2.getText().equals("")) {
+//            JOptionPane.showMessageDialog(this, "Không tìm thấy sinh viên!");
+//            txtMaSV2.requestFocus();
+//        }
     }//GEN-LAST:event_btnTimKiemActionPerformed
+
+    private void txtHoTenFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtHoTenFocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtHoTenFocusLost
+
+    private void txtHoTenFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtHoTenFocusGained
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtHoTenFocusGained
+
+    private void txtMaSVFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtMaSVFocusGained
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtMaSVFocusGained
 
     /**
      * @param args the command line arguments
@@ -847,6 +929,7 @@ public class QLDSV extends javax.swing.JFrame {
     private javax.swing.JButton btnSave;
     private javax.swing.JButton btnTimKiem;
     private javax.swing.JButton btnUpdate;
+    private javax.swing.JComboBox<String> cboTenMon;
     private javax.swing.JButton jButton37;
     private javax.swing.JButton jButton38;
     private javax.swing.JButton jButton39;
@@ -874,7 +957,6 @@ public class QLDSV extends javax.swing.JFrame {
     private javax.swing.JTextField txtDiemQuiz;
     private javax.swing.JTextField txtDiemTB;
     private javax.swing.JTextField txtHoTen;
-    private javax.swing.JTextField txtMaMon;
     private javax.swing.JTextField txtMaSV;
     private javax.swing.JTextField txtMaSV2;
     // End of variables declaration//GEN-END:variables

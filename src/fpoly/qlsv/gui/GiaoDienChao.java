@@ -4,6 +4,11 @@
  */
 package fpoly.qlsv.gui;
 
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.Timer;
+
 /**
  *
  * @author hoang
@@ -13,9 +18,12 @@ public class GiaoDienChao extends javax.swing.JFrame {
     /**
      * Creates new form GiaoDienChao
      */
-    public GiaoDienChao() {
+    public GiaoDienChao(java.awt.Frame parent, boolean modal) {
         initComponents();
         setLocationRelativeTo(null);
+        init();
+
+        
     }
 
     /**
@@ -35,6 +43,15 @@ public class GiaoDienChao extends javax.swing.JFrame {
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/nenChao.jpg"))); // NOI18N
 
         pgb_loading.setStringPainted(true);
+        pgb_loading.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                pgb_loadingAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -53,6 +70,11 @@ public class GiaoDienChao extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void pgb_loadingAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_pgb_loadingAncestorAdded
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_pgb_loadingAncestorAdded
 
     /**
      * @param args the command line arguments
@@ -84,9 +106,37 @@ public class GiaoDienChao extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new GiaoDienChao().setVisible(true);
+                GiaoDienChao dialog = new GiaoDienChao(new javax.swing.JFrame(), true);
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                dialog.setVisible(true);
             }
         });
+    }
+
+    private void init() {
+        this.setLocationRelativeTo(null);
+        //ProgressBar
+        new Timer(10, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int value = pgb_loading.getValue();
+                if (value < pgb_loading.getMaximum()) {
+                    pgb_loading.setValue(value + 1);
+                    
+                } else {
+                    GiaoDienChao.this.dispose();
+                }
+                
+            }
+            
+        }).start();
+        
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

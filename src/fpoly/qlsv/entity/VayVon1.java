@@ -10,16 +10,16 @@ import java.util.Date;
  *
  * @author hoang
  */
-public class VayVon {
+public class VayVon1 {
      private String maSV,TenVV;
     private double Sotienvay;
     private Date Ngayvay,HanTra;
     private String CMND,SoDT;
 
-    public VayVon() {
+    public VayVon1() {
     }
 
-    public VayVon(String maSV, String TenVV, double Sotienvay, Date Ngayvay, Date HanTra, String CMND, String SoDT) {
+    public VayVon1(String maSV, String TenVV, double Sotienvay, Date Ngayvay, Date HanTra, String CMND, String SoDT) {
         this.maSV = maSV;
         this.TenVV = TenVV;
         this.Sotienvay = Sotienvay;

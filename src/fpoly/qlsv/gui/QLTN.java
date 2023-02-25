@@ -25,12 +25,15 @@ public class QLTN extends javax.swing.JFrame {
 
     DefaultTableModel tblModel;
     private List<TotNghiep> list = new ArrayList<>();
-    String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003@;encrypt=true;trustServerCertificate=true";
+     String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003@";
     private int index = -1;
 
     public QLTN() {
         initComponents();
         setLocationRelativeTo(null);
+        initTable();
+        loadDataToArray();
+        fillToTable();
     }
 
     public void initTable() {
@@ -51,8 +54,8 @@ public class QLTN extends javax.swing.JFrame {
 
     public void loadDataToArray() {
         try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
-            String SQL = "Select tn.MaSV, sv.TenSV, tn.MaNganh, tn.XepLoai\n"
-                    + "From TotNghiep tn, SinhVien sv";;
+            String SQL = "SELECT TotNghiep.MASV, TENSV, TenNganh,(Lab+Assment+Quiz)/3.0 AS 'DiemTB', XepLoai\n"
+                    + "FROM TotNghiep,DIEM, SinhVien, NganhHoc WHERE TotNghiep.MASV = DIEM.MASV";
             ResultSet rs = stmt.executeQuery(SQL);
             list.clear();
 
@@ -74,8 +77,11 @@ public class QLTN extends javax.swing.JFrame {
     public void showTable(int index) {
         txtMaSV.setText(list.get(index).getMaSV());
         txtNganh.setText(list.get(index).getNganh());
+        txtDiemTB.setText(String.valueOf(list.get(index).getDiemTB()));
         txtXepLoai.setText(list.get(index).getXepLoai());
     }
+
+ 
 
     public boolean validateForm() {
         if (txtMaSV.getText().isEmpty()) {
@@ -106,12 +112,13 @@ public class QLTN extends javax.swing.JFrame {
     public void newForm() {
         txtMaSV.setText("");
         txtNganh.setText("");
+        txtDiemTB.setText("");
         txtXepLoai.setText("");
     }
 
     public void save() {
         if (validateForm()) {
-            try (java.sql.Connection con = DriverManager.getConnection(connectionUrl);) {
+            try ( java.sql.Connection con = DriverManager.getConnection(connectionUrl);) {
                 String sql = "Insert Into TotNghiep(MaSV,MaNganh,XepLoai) Values (?,?,?)";
                 PreparedStatement ps = con.prepareStatement(sql);
                 ps.setString(1, txtMaSV.getText());
@@ -126,7 +133,9 @@ public class QLTN extends javax.swing.JFrame {
                 }
                 ps.close();
                 con.close();
-
+                loadDataToArray();
+                newForm();
+                fillToTable();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -135,7 +144,7 @@ public class QLTN extends javax.swing.JFrame {
 
     public void delete() {
         if (!txtMaSV.getText().isEmpty()) {
-            try (java.sql.Connection con = DriverManager.getConnection(connectionUrl);) {
+            try ( java.sql.Connection con = DriverManager.getConnection(connectionUrl);) {
                 String sql = "Delete TotNghiep where MaSV = ?";
                 PreparedStatement ps = con.prepareStatement(sql);
 
@@ -148,6 +157,9 @@ public class QLTN extends javax.swing.JFrame {
                 }
                 ps.close();
                 con.close();
+                loadDataToArray();
+                newForm();
+                fillToTable();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -156,7 +168,7 @@ public class QLTN extends javax.swing.JFrame {
 
     public void update() {
         if (validateForm()) {
-            try (java.sql.Connection con = DriverManager.getConnection(connectionUrl);) {
+            try ( java.sql.Connection con = DriverManager.getConnection(connectionUrl);) {
                 String sql = "Update TotNghiep Set MaSV = ?, MaNganh =?, XepLoai = ? where MaSV = ?";
                 PreparedStatement ps = con.prepareStatement(sql);
 
@@ -173,7 +185,8 @@ public class QLTN extends javax.swing.JFrame {
                 ps.close();
                 con.close();
                 loadDataToArray();
-
+               newForm();
+                fillToTable();
             } catch (Exception e) {
             }
         }
@@ -276,6 +289,8 @@ public class QLTN extends javax.swing.JFrame {
         btnNext = new javax.swing.JButton();
         btnLast = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        txtDiemTB = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -319,6 +334,8 @@ public class QLTN extends javax.swing.JFrame {
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel5.setText("Xếp loại:");
+
+        txtXepLoai.setEditable(false);
 
         tblTotNghiep.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -421,6 +438,15 @@ public class QLTN extends javax.swing.JFrame {
             }
         });
 
+        txtDiemTB.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtDiemTBFocusLost(evt);
+            }
+        });
+
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel4.setText("Điểm TB:");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -448,28 +474,36 @@ public class QLTN extends javax.swing.JFrame {
                                 .addGap(7, 7, 7)
                                 .addComponent(btnTimKiem))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(btnThem)
-                                        .addGap(14, 14, 14)
-                                        .addComponent(btnSua)
-                                        .addGap(11, 11, 11)
-                                        .addComponent(btnLuu))
-                                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addComponent(btnThem)
+                                                .addGap(14, 14, 14)
+                                                .addComponent(btnSua)
+                                                .addGap(11, 11, 11)
+                                                .addComponent(btnLuu))
+                                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addComponent(jLabel3)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(txtNganh, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addGap(6, 6, 6)
+                                                .addComponent(btnXoa))))
                                     .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel3)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(txtNganh, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(6, 6, 6)
-                                        .addComponent(btnXoa))))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addGap(18, 18, 18)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(txtMaSV, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
-                                    .addComponent(txtXepLoai))))))
+                                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addComponent(txtDiemTB, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(jLabel5)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(txtXepLoai, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addComponent(txtMaSV, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -486,10 +520,13 @@ public class QLTN extends javax.swing.JFrame {
                     .addComponent(txtMaSV, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2))
                 .addGap(18, 18, 18)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(txtXepLoai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(37, 37, 37)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(txtXepLoai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel5)
+                        .addComponent(txtDiemTB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel4)))
+                .addGap(34, 34, 34)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnThem, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnLuu, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -501,9 +538,9 @@ public class QLTN extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(7, 7, 7)
                         .addComponent(jButton1)
-                        .addGap(0, 33, Short.MAX_VALUE))
+                        .addGap(0, 36, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(btnNext, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -594,6 +631,22 @@ public class QLTN extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void txtDiemTBFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtDiemTBFocusLost
+        // TODO add your handling code here:
+         double tb = Double.parseDouble(txtDiemTB.getText());
+         if(tb < 5){
+             txtXepLoai.setText("Kém");
+         }else if(tb >= 5 & tb < 6){
+            txtXepLoai.setText("Trung Bình");
+         }else if(tb >= 6 & tb < 8){
+             txtXepLoai.setText("Khá");
+         }else if(tb >= 8 & tb < 9){
+             txtXepLoai.setText("Giỏi");
+         }else if(tb >= 9){
+             txtXepLoai.setText("Xuất Sắc");
+         }
+    }//GEN-LAST:event_txtDiemTBFocusLost
+
     /**
      * @param args the command line arguments
      */
@@ -643,11 +696,13 @@ public class QLTN extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tblTotNghiep;
+    private javax.swing.JTextField txtDiemTB;
     private javax.swing.JTextField txtMaSV;
     private javax.swing.JTextField txtNganh;
     private javax.swing.JTextField txtTimKiem;

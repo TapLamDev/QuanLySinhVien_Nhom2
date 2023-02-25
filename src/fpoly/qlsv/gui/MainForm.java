@@ -4,6 +4,12 @@
  */
 package fpoly.qlsv.gui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.swing.Timer;
+
 /**
  *
  * @author hoang
@@ -16,6 +22,7 @@ public class MainForm extends javax.swing.JFrame {
     public MainForm() {
         initComponents();
         setLocationRelativeTo(null);
+
     }
 
     /**
@@ -75,6 +82,11 @@ public class MainForm extends javax.swing.JFrame {
         btnDangXuat.setFocusable(false);
         btnDangXuat.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnDangXuat.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnDangXuat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDangXuatActionPerformed(evt);
+            }
+        });
         jToolBar1.add(btnDangXuat);
         jToolBar1.add(jSeparator2);
 
@@ -82,6 +94,11 @@ public class MainForm extends javax.swing.JFrame {
         btnDoiMatKhau.setFocusable(false);
         btnDoiMatKhau.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnDoiMatKhau.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnDoiMatKhau.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDoiMatKhauActionPerformed(evt);
+            }
+        });
         jToolBar1.add(btnDoiMatKhau);
         jToolBar1.add(jSeparator3);
 
@@ -89,6 +106,11 @@ public class MainForm extends javax.swing.JFrame {
         btnQLTTSV.setFocusable(false);
         btnQLTTSV.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnQLTTSV.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnQLTTSV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQLTTSVActionPerformed(evt);
+            }
+        });
         jToolBar1.add(btnQLTTSV);
         jToolBar1.add(jSeparator4);
 
@@ -96,6 +118,11 @@ public class MainForm extends javax.swing.JFrame {
         btnQLDiem.setFocusable(false);
         btnQLDiem.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnQLDiem.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnQLDiem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQLDiemActionPerformed(evt);
+            }
+        });
         jToolBar1.add(btnQLDiem);
         jToolBar1.add(jSeparator5);
 
@@ -103,6 +130,11 @@ public class MainForm extends javax.swing.JFrame {
         btnQLLop.setFocusable(false);
         btnQLLop.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnQLLop.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnQLLop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQLLopActionPerformed(evt);
+            }
+        });
         jToolBar1.add(btnQLLop);
         jToolBar1.add(jSeparator6);
 
@@ -110,6 +142,11 @@ public class MainForm extends javax.swing.JFrame {
         btnQLGV.setFocusable(false);
         btnQLGV.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnQLGV.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnQLGV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQLGVActionPerformed(evt);
+            }
+        });
         jToolBar1.add(btnQLGV);
         jToolBar1.add(jSeparator7);
 
@@ -117,6 +154,11 @@ public class MainForm extends javax.swing.JFrame {
         btnQLLichHoc.setFocusable(false);
         btnQLLichHoc.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnQLLichHoc.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnQLLichHoc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQLLichHocActionPerformed(evt);
+            }
+        });
         jToolBar1.add(btnQLLichHoc);
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/fpoly/qlsv/icon/Chao.jpg"))); // NOI18N
@@ -128,6 +170,11 @@ public class MainForm extends javax.swing.JFrame {
 
         mniDangNhap.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_K, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         mniDangNhap.setText("Đăng Nhập");
+        mniDangNhap.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mniDangNhapActionPerformed(evt);
+            }
+        });
         mnuHeThong.add(mniDangNhap);
 
         mniDangKy.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_DOWN_MASK));
@@ -136,6 +183,11 @@ public class MainForm extends javax.swing.JFrame {
 
         mniDoiMatKhau.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_J, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         mniDoiMatKhau.setText("Đổi Mật Khẩu");
+        mniDoiMatKhau.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mniDoiMatKhauActionPerformed(evt);
+            }
+        });
         mnuHeThong.add(mniDoiMatKhau);
         mnuHeThong.add(jSeparator1);
 
@@ -148,33 +200,78 @@ public class MainForm extends javax.swing.JFrame {
         mnuQuanLy.setText("Quản Lý");
 
         mniQLTTSV.setText("QL Sinh Viên");
+        mniQLTTSV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mniQLTTSVActionPerformed(evt);
+            }
+        });
         mnuQuanLy.add(mniQLTTSV);
 
         mniQLD.setText("QL Điểm");
+        mniQLD.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mniQLDActionPerformed(evt);
+            }
+        });
         mnuQuanLy.add(mniQLD);
 
         mniQLLop.setText("QL Lớp");
+        mniQLLop.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mniQLLopActionPerformed(evt);
+            }
+        });
         mnuQuanLy.add(mniQLLop);
 
         mniQLGV.setText("QL Giảng Viên");
+        mniQLGV.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mniQLGVActionPerformed(evt);
+            }
+        });
         mnuQuanLy.add(mniQLGV);
 
         mniQLHocPhi.setText("QL Học Phí");
+        mniQLHocPhi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mniQLHocPhiActionPerformed(evt);
+            }
+        });
         mnuQuanLy.add(mniQLHocPhi);
 
         mniQLHocBong.setText("QL Học Bổng");
+        mniQLHocBong.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mniQLHocBongActionPerformed(evt);
+            }
+        });
         mnuQuanLy.add(mniQLHocBong);
 
         mniQLTotNghiep.setText("QL Tốt Nghiệp");
+        mniQLTotNghiep.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mniQLTotNghiepActionPerformed(evt);
+            }
+        });
         mnuQuanLy.add(mniQLTotNghiep);
 
         mniQLLichHoc.setText("QL Lịch Học");
         mnuQuanLy.add(mniQLLichHoc);
 
         mniQLVayVon.setText("Vay Vốn");
+        mniQLVayVon.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mniQLVayVonActionPerformed(evt);
+            }
+        });
         mnuQuanLy.add(mniQLVayVon);
 
         mniKTKL.setText("Khen Thưởng/Kỷ Luật");
+        mniKTKL.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mniKTKLActionPerformed(evt);
+            }
+        });
         mnuQuanLy.add(mniKTKL);
 
         jMenuBar1.add(mnuQuanLy);
@@ -217,6 +314,131 @@ public class MainForm extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnDangXuatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDangXuatActionPerformed
+        // TODO add your handling code here:
+        Login l = new Login();
+        l.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnDangXuatActionPerformed
+
+    private void btnDoiMatKhauActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDoiMatKhauActionPerformed
+        // TODO add your handling code here:
+        DoiMK mk = new DoiMK();
+        mk.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnDoiMatKhauActionPerformed
+
+    private void btnQLTTSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQLTTSVActionPerformed
+        // TODO add your handling code here:
+        QLTTSV sv = new QLTTSV();
+        sv.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnQLTTSVActionPerformed
+
+    private void btnQLDiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQLDiemActionPerformed
+        // TODO add your handling code here:
+        QLDSV dsv = new QLDSV();
+        dsv.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnQLDiemActionPerformed
+
+    private void btnQLLopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQLLopActionPerformed
+        // TODO add your handling code here:
+        QLLH lop = new QLLH();
+        lop.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnQLLopActionPerformed
+
+    private void btnQLGVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQLGVActionPerformed
+        // TODO add your handling code here:
+        homeGV gc = new homeGV();
+        gc.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnQLGVActionPerformed
+
+    private void btnQLLichHocActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQLLichHocActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnQLLichHocActionPerformed
+
+    private void mniQLVayVonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniQLVayVonActionPerformed
+        // TODO add your handling code here:
+        VayVon vv = new VayVon();
+        vv.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_mniQLVayVonActionPerformed
+
+    private void mniKTKLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniKTKLActionPerformed
+        // TODO add your handling code here:
+        KhenThuongKyLuat kt = new KhenThuongKyLuat();
+        kt.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_mniKTKLActionPerformed
+
+    private void mniQLTotNghiepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniQLTotNghiepActionPerformed
+        // TODO add your handling code here:
+        QLTN tn = new QLTN();
+        tn.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_mniQLTotNghiepActionPerformed
+
+    private void mniQLHocBongActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniQLHocBongActionPerformed
+        // TODO add your handling code here:
+        QLHB hb = new QLHB();
+        hb.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_mniQLHocBongActionPerformed
+
+    private void mniQLHocPhiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniQLHocPhiActionPerformed
+        // TODO add your handling code here:
+        HocPhi hp = new HocPhi();
+        hp.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_mniQLHocPhiActionPerformed
+
+    private void mniQLGVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniQLGVActionPerformed
+        // TODO add your handling code here:
+        homeGV gc = new homeGV();
+        gc.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_mniQLGVActionPerformed
+
+    private void mniQLLopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniQLLopActionPerformed
+        // TODO add your handling code here:
+        QLLH lop = new QLLH();
+        lop.setVisible(true);
+        this.dispose();
+
+    }//GEN-LAST:event_mniQLLopActionPerformed
+
+    private void mniQLDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniQLDActionPerformed
+        // TODO add your handling code here:
+        QLDSV dsv = new QLDSV();
+        dsv.setVisible(true);
+        this.dispose();
+
+    }//GEN-LAST:event_mniQLDActionPerformed
+
+    private void mniQLTTSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniQLTTSVActionPerformed
+        // TODO add your handling code here:
+        QLTTSV sv = new QLTTSV();
+        sv.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_mniQLTTSVActionPerformed
+
+    private void mniDangNhapActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniDangNhapActionPerformed
+        // TODO add your handling code here:
+        Login l = new Login();
+        l.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_mniDangNhapActionPerformed
+
+    private void mniDoiMatKhauActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniDoiMatKhauActionPerformed
+        // TODO add your handling code here:
+        DoiMK mk = new DoiMK();
+        mk.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_mniDoiMatKhauActionPerformed
 
     /**
      * @param args the command line arguments
@@ -292,4 +514,17 @@ public class MainForm extends javax.swing.JFrame {
     private javax.swing.JMenu mnuQuanLy;
     private javax.swing.JMenu mnuTroGiup;
     // End of variables declaration//GEN-END:variables
+
+    private void startClock() {
+        new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Date now = new Date();
+                SimpleDateFormat fomarter = new SimpleDateFormat("hh:mm:ss a");
+                String text = fomarter.format(now);
+                lblTime.setText(text);
+            }
+        }).start();
+    }
+
 }

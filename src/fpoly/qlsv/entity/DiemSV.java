@@ -10,9 +10,10 @@ package fpoly.qlsv.entity;
  */
 public class DiemSV {
 
+    private int id;
     private String MaSV;
     private String HoTen;
-    private String MaMon;
+    private String TenMon;
     private double Lab;
     private double Assment;
     private double Quiz;
@@ -21,14 +22,23 @@ public class DiemSV {
     public DiemSV() {
     }
 
-    public DiemSV(String MaSV, String HoTen, String MaMon, double Lab, double Assment, double Quiz, double diemTB) {
+    public DiemSV(int id, String MaSV, String HoTen, String TenMon, double Lab, double Assment, double Quiz, double diemTB) {
+        this.id = id;
         this.MaSV = MaSV;
         this.HoTen = HoTen;
-        this.MaMon = MaMon;
+        this.TenMon = TenMon;
         this.Lab = Lab;
         this.Assment = Assment;
         this.Quiz = Quiz;
         this.diemTB = diemTB;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getMaSV() {
@@ -47,12 +57,12 @@ public class DiemSV {
         this.HoTen = HoTen;
     }
 
-    public String getMaMon() {
-        return MaMon;
+    public String getTenMon() {
+        return TenMon;
     }
 
-    public void setMaMon(String MaMon) {
-        this.MaMon = MaMon;
+    public void setTenMon(String TenMon) {
+        this.TenMon = TenMon;
     }
 
     public double getLab() {
@@ -80,13 +90,11 @@ public class DiemSV {
     }
 
     public double getDiemTB() {
-        return (Lab + Assment + Quiz)/3;
+        return (Lab + Assment + Quiz) / 3;
     }
 
     public void setDiemTB(double diemTB) {
         this.diemTB = diemTB;
     }
-
-
 
 }

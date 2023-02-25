@@ -188,7 +188,7 @@ public class QLTTSV extends javax.swing.JFrame {
     public void Save() {
         if (CheckForm()) {
             try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
-                String SQL = "Exec sp_DangKy ?,'123',?,?,?,?,?,?,?,''";
+                String SQL = "Exec sp_DangKy ?,'123',?,?,?,?,?,?,?";
                 PreparedStatement st = con.prepareStatement(SQL);
                 st.setString(1, txtMaSV.getText());
                 st.setString(2, txtName.getText());

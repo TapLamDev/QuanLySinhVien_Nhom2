@@ -23,12 +23,15 @@ public class QLHB extends javax.swing.JFrame {
 
     DefaultTableModel tblModel;
     private ArrayList<HocBong> list = new ArrayList<>();
-    String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003;encrypt=true;trustServerCertificate=true";
+    String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003@";
     private int index = -1;
 
     public QLHB() {
         initComponents();
         setLocationRelativeTo(null);
+        initTable();
+        loadDataToArray();
+        fillToTable();
     }
 
     public void initTable() {

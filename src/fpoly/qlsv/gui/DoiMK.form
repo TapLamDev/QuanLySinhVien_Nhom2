@@ -98,6 +98,9 @@
         </Property>
         <Property name="text" type="java.lang.String" value="H&#x1ee7;y B&#x1ecf;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnHuyBoActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnDongY">
       <Properties>

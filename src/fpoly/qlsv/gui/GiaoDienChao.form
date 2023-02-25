@@ -49,6 +49,9 @@
       <Properties>
         <Property name="stringPainted" type="boolean" value="true"/>
       </Properties>
+      <Events>
+        <EventHandler event="ancestorAdded" listener="javax.swing.event.AncestorListener" parameters="javax.swing.event.AncestorEvent" handler="pgb_loadingAncestorAdded"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

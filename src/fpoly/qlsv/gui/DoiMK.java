@@ -44,6 +44,11 @@ public class DoiMK extends javax.swing.JFrame {
 
         btnHuyBo.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnHuyBo.setText("Hủy Bỏ");
+        btnHuyBo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHuyBoActionPerformed(evt);
+            }
+        });
 
         btnDongY.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnDongY.setText("Đồng Ý");
@@ -128,6 +133,11 @@ public class DoiMK extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnHuyBoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHuyBoActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_btnHuyBoActionPerformed
 
     /**
      * @param args the command line arguments
