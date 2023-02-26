@@ -10,7 +10,7 @@ import java.util.Date;
  *
  * @author hoang
  */
-public class HocPhi {
+public class HocPhi1 {
     private  String MaSV;
     private String hoTen;
     private String MaKH;
@@ -18,10 +18,10 @@ public class HocPhi {
     private double tien;
     private Date thoiGian;
 
-    public HocPhi() {
+    public HocPhi1() {
     }
 
-    public HocPhi(String MaSV, String hoTen, String MaKH, String MaHD, double tien, Date thoiGian) {
+    public HocPhi1(String MaSV, String hoTen, String MaKH, String MaHD, double tien, Date thoiGian) {
         this.MaSV = MaSV;
         this.hoTen = hoTen;
         this.MaKH = MaKH;

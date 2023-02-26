@@ -22,7 +22,7 @@ public class MainForm extends javax.swing.JFrame {
     public MainForm() {
         initComponents();
         setLocationRelativeTo(null);
-
+        startClock();
     }
 
     /**
@@ -38,9 +38,9 @@ public class MainForm extends javax.swing.JFrame {
         btnDangXuat = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JToolBar.Separator();
         btnDoiMatKhau = new javax.swing.JButton();
-        jSeparator3 = new javax.swing.JToolBar.Separator();
-        btnQLTTSV = new javax.swing.JButton();
         jSeparator4 = new javax.swing.JToolBar.Separator();
+        btnQLTTSV = new javax.swing.JButton();
+        jSeparator3 = new javax.swing.JToolBar.Separator();
         btnQLDiem = new javax.swing.JButton();
         jSeparator5 = new javax.swing.JToolBar.Separator();
         btnQLLop = new javax.swing.JButton();
@@ -100,7 +100,7 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
         jToolBar1.add(btnDoiMatKhau);
-        jToolBar1.add(jSeparator3);
+        jToolBar1.add(jSeparator4);
 
         btnQLTTSV.setText("Quản Lý TTSV");
         btnQLTTSV.setFocusable(false);
@@ -112,7 +112,7 @@ public class MainForm extends javax.swing.JFrame {
             }
         });
         jToolBar1.add(btnQLTTSV);
-        jToolBar1.add(jSeparator4);
+        jToolBar1.add(jSeparator3);
 
         btnQLDiem.setText("Quản Lý Điểm");
         btnQLDiem.setFocusable(false);
@@ -416,7 +416,6 @@ public class MainForm extends javax.swing.JFrame {
         QLDSV dsv = new QLDSV();
         dsv.setVisible(true);
         this.dispose();
-
     }//GEN-LAST:event_mniQLDActionPerformed
 
     private void mniQLTTSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniQLTTSVActionPerformed

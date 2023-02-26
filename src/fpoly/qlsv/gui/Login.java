@@ -4,6 +4,8 @@
  */
 package fpoly.qlsv.gui;
 
+import QuanLyGiaoDuc.DAO.AccountDao;
+import Xjdbc.Auth;
 import fpoly.qlsv.entity.Account;
 import java.awt.Color;
 import java.sql.Connection;
@@ -19,15 +21,30 @@ import javax.swing.JOptionPane;
  */
 public class Login extends javax.swing.JFrame {
 
-    int current = 0;
-    public boolean check = false;
-    ArrayList<Account> listAc = new ArrayList<>();
-    String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003@;encrypt=true;trustServerCertificate=true";
+    AccountDao dao = new AccountDao();
 
     public Login() {
 
         initComponents();
         setLocationRelativeTo(null);
+    }
+
+    void dangNhap() {
+        String tenTK = txtUserName.getText();
+        String matKhau = new String(txtPassword.getPassword());
+        Account nv = dao.selectById(tenTK);
+        if (nv == null) {
+            JOptionPane.showMessageDialog(this, "Sai Tên Tài Khoản!");
+        } else if (!matKhau.equals(nv.getPassword())) {
+//            MsgBox.alert(this, "Sai mật khẩu!");
+            JOptionPane.showMessageDialog(this, "Sai Mật Khẩu!");
+        } else {
+            Auth.user = nv;
+            MainForm m = new MainForm();
+            m.setVisible(true);
+            this.dispose();
+        }
+
     }
 
 //    public void LoadDataAccountsToArray() //doc tat ca du lieu trong table account vao arraylist
@@ -73,7 +90,6 @@ public class Login extends javax.swing.JFrame {
 //            this.dispose();
 //        }
 //    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -181,36 +197,39 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-                if(txtUserName.getText().equals("")){
+        if (txtUserName.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "Bạn chưa nhập UserName!");
             txtUserName.setBackground(Color.YELLOW);
             return;
-        }else{
+        } else {
             txtUserName.setBackground(Color.WHITE);
         }
-        if(txtPassword.getText().equals("")){
+        if (txtPassword.getText().equals("")) {
             JOptionPane.showMessageDialog(this, "Bạn chưa nhập PassWord!");
             txtPassword.setBackground(Color.YELLOW);
             return;
-        }
-        else{
+        } else {
             txtPassword.setBackground(Color.WHITE);
         }
-        if(txtUserName.getText().equalsIgnoreCase("HaNhan") && txtPassword.getText().equalsIgnoreCase("123456")){
+        if (txtUserName.getText().equalsIgnoreCase("HaNhan") && txtPassword.getText().equalsIgnoreCase("123456")) {
             JOptionPane.showMessageDialog(this, "Đăng nhập thành công");
             MainForm m = new MainForm();
             m.setVisible(true);
             this.dispose();
             txtUserName.setBackground(Color.WHITE);
             txtUserName.setBackground(Color.WHITE);
-        }else {
+        } else if (!txtUserName.getText().equalsIgnoreCase("HaNhan")) {
+            dangNhap();
+
+        } else {
             JOptionPane.showMessageDialog(this, "Username hoặc Password không đúng!");
 
         }
+
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void btnLoginKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnLoginKeyPressed
-        
+
     }//GEN-LAST:event_btnLoginKeyPressed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed

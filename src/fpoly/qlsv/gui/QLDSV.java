@@ -27,6 +27,7 @@ public class QLDSV extends javax.swing.JFrame {
 
     DefaultTableModel tblModel;
     private List<DiemSV> list = new ArrayList<>();
+    private List<SinhVien> lisst = new ArrayList<>();
     private int current = 0;
     String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003@";
 
@@ -37,7 +38,9 @@ public class QLDSV extends javax.swing.JFrame {
         initTable();
         loaddataToCombobox();
         loadDataToArray();
+        loadDataToArray1();
         fillTable();
+
     }
 
     public void Display(int i) {
@@ -89,6 +92,29 @@ public class QLDSV extends javax.swing.JFrame {
                 list.add(dsv);
             }
 
+        } // Handle any errors that may have occurred.
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+        public void loadDataToArray1() {
+        try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
+            String SQL = "SELECT * FROM SinhVien";
+            ResultSet rs = stmt.executeQuery(SQL);
+            lisst.clear();
+
+            while (rs.next()) {
+                String masv = rs.getString(1);
+                String tensv = rs.getString(2);
+                boolean gt = rs.getBoolean(3);
+                String diachi = rs.getString(4);
+                String email = rs.getString(5);
+                String sodt = rs.getString(6);
+                String mal = rs.getString(8);
+                String anh = rs.getString(7);
+                SinhVien sv = new SinhVien(masv, tensv, gt, diachi, email, sodt, mal, anh);
+                lisst.add(sv);
+            }
         } // Handle any errors that may have occurred.
         catch (SQLException e) {
             e.printStackTrace();
@@ -305,6 +331,7 @@ public class QLDSV extends javax.swing.JFrame {
         btnNext = new javax.swing.JButton();
         btnLast = new javax.swing.JButton();
         cboTenMon = new javax.swing.JComboBox<>();
+        jButton2 = new javax.swing.JButton();
         jToolBar5 = new javax.swing.JToolBar();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -317,6 +344,7 @@ public class QLDSV extends javax.swing.JFrame {
         jButton41 = new javax.swing.JButton();
         txtMaSV2 = new javax.swing.JTextField();
         btnTimKiem = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -380,6 +408,8 @@ public class QLDSV extends javax.swing.JFrame {
         });
 
         txtHoTen.setEditable(false);
+        txtHoTen.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        txtHoTen.setForeground(new java.awt.Color(204, 0, 51));
         txtHoTen.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 txtHoTenFocusGained(evt);
@@ -469,6 +499,13 @@ public class QLDSV extends javax.swing.JFrame {
 
         cboTenMon.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Chọn Môn Học" }));
 
+        jButton2.setText("Exit");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -482,6 +519,8 @@ public class QLDSV extends javax.swing.JFrame {
                 .addComponent(btnNext)
                 .addGap(18, 18, 18)
                 .addComponent(btnLast)
+                .addGap(69, 69, 69)
+                .addComponent(jButton2)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addContainerGap()
@@ -532,7 +571,7 @@ public class QLDSV extends javax.swing.JFrame {
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel29, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cboTenMon, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel30, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtDiemLab, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -548,7 +587,7 @@ public class QLDSV extends javax.swing.JFrame {
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtDiemTB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel31, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnPrev, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(btnFirst, javax.swing.GroupLayout.Alignment.TRAILING)
@@ -564,7 +603,9 @@ public class QLDSV extends javax.swing.JFrame {
                 .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton2)
+                .addGap(39, 39, 39))
         );
 
         jToolBar4.add(jPanel5);
@@ -620,6 +661,11 @@ public class QLDSV extends javax.swing.JFrame {
         jButton40.setBorderPainted(false);
 
         jButton41.setText("EXIT");
+        jButton41.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton41ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -690,12 +736,24 @@ public class QLDSV extends javax.swing.JFrame {
 
         tabs.addTab("Danh Sách", jToolBar5);
 
+        jButton1.setText("EXIT");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(tabs)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(243, 243, 243)
+                    .addComponent(jButton1)
+                    .addContainerGap(244, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -703,6 +761,11 @@ public class QLDSV extends javax.swing.JFrame {
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tabs, javax.swing.GroupLayout.PREFERRED_SIZE, 445, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(246, 246, 246)
+                    .addComponent(jButton1)
+                    .addContainerGap(247, Short.MAX_VALUE)))
         );
 
         pack();
@@ -749,14 +812,16 @@ public class QLDSV extends javax.swing.JFrame {
     private void txtMaSVFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtMaSVFocusLost
         // TODO add your handling code here:
 
-        if (!list.isEmpty()) {
-            for (DiemSV sv : list) {
+        if (!lisst.isEmpty()) {
+            for (SinhVien sv : lisst) {
                 if (sv.getMaSV().equalsIgnoreCase(txtMaSV.getText())) {
-                    txtHoTen.setText(sv.getHoTen());
+                    txtHoTen.setText(sv.getTenSV());
                 }
             }
         }
+      
 
+        
     }//GEN-LAST:event_txtMaSVFocusLost
 
     private void txtDiemQuizFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtDiemQuizFocusLost
@@ -884,6 +949,27 @@ public class QLDSV extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtMaSVFocusGained
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        MainForm main = new MainForm();
+        main.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        MainForm main = new MainForm();
+        main.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton41ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton41ActionPerformed
+        // TODO add your handling code here:
+        MainForm main = new MainForm();
+        main.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton41ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -930,6 +1016,8 @@ public class QLDSV extends javax.swing.JFrame {
     private javax.swing.JButton btnTimKiem;
     private javax.swing.JButton btnUpdate;
     private javax.swing.JComboBox<String> cboTenMon;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton37;
     private javax.swing.JButton jButton38;
     private javax.swing.JButton jButton39;

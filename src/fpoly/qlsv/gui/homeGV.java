@@ -14,7 +14,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
-
 /**
  *
  * @author Admin
@@ -28,7 +27,7 @@ public class homeGV extends javax.swing.JFrame {
     nganhTKDH tKDH = new nganhTKDH();
     nganhMarketing mKT = new nganhMarketing();
     int row = -1;
-    
+
     /**
      * Creates new form homeGV
      */
@@ -187,7 +186,7 @@ public class homeGV extends javax.swing.JFrame {
         rdoMale.setText("Nam");
 
         btnBack.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        btnBack.setText("Quay lại");
+        btnBack.setText("Exit");
         btnBack.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnBackActionPerformed(evt);
@@ -262,13 +261,12 @@ public class homeGV extends javax.swing.JFrame {
                         .addGroup(pTTLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(pTTLayout.createSequentialGroup()
                                 .addGap(28, 28, 28)
-                                .addComponent(txtMon, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(txtMon, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(pTTLayout.createSequentialGroup()
                                 .addGap(18, 18, 18)
-                                .addComponent(cbNganh, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE)))))
+                                .addComponent(cbNganh, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnBack, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         pTTLayout.setVerticalGroup(
@@ -325,7 +323,7 @@ public class homeGV extends javax.swing.JFrame {
                     .addGroup(pTTLayout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnBack)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(21, Short.MAX_VALUE))
         );
 
         tpGV.addTab("Thông tin cá nhân", pTT);
@@ -508,7 +506,7 @@ public class homeGV extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-        
+
     private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtSearchActionPerformed
@@ -534,17 +532,20 @@ public class homeGV extends javax.swing.JFrame {
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
         // TODO add your handling code here:
+        MainForm main = new MainForm();
+        main.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btChonAnhActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btChonAnhActionPerformed
         JFileChooser file = new JFileChooser("D:\\NHAPMONKYTHUAT\\Assignment\\Nhom2_DuAn_QLSV\\src\\fpoly\\qlsv\\Image\\");
-            int kq = file.showOpenDialog(file);
-            if (kq == JFileChooser.APPROVE_OPTION) {
-                this.nameFile = file.getSelectedFile().getName();
-                upImage(this.nameFile);
-            } else {
-                JOptionPane.showMessageDialog(rootPane, "Bạn chưa chọn ảnh...");
-            }
+        int kq = file.showOpenDialog(file);
+        if (kq == JFileChooser.APPROVE_OPTION) {
+            this.nameFile = file.getSelectedFile().getName();
+            upImage(this.nameFile);
+        } else {
+            JOptionPane.showMessageDialog(rootPane, "Bạn chưa chọn ảnh...");
+        }
     }//GEN-LAST:event_btChonAnhActionPerformed
 
     private void txtMonAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtMonAncestorAdded
@@ -570,9 +571,9 @@ public class homeGV extends javax.swing.JFrame {
 
     private void tblGVMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblGVMouseClicked
         // TODO add your handling code here:
-        if(evt.getClickCount() == 2){
-           this.row = tblGV.getSelectedRow();
-           this.edit();
+        if (evt.getClickCount() == 2) {
+            this.row = tblGV.getSelectedRow();
+            this.edit();
         }
     }//GEN-LAST:event_tblGVMouseClicked
 
@@ -684,8 +685,8 @@ public class homeGV extends javax.swing.JFrame {
     private javax.swing.JTextField txtSoDT;
     private javax.swing.JTextField txtTen;
     // End of variables declaration//GEN-END:variables
-    
-    void clean(){
+
+    void clean() {
         txtMaGV.setText("");
         txtTen.setText("");
         txtEmail.setText("");
@@ -696,39 +697,39 @@ public class homeGV extends javax.swing.JFrame {
 //        cbNganh.getItemAt(1);
         txtMon.setText("");
     }
-    
-    void edit(){
-        String maGV = (String)tblGV.getValueAt(this.row, 0);
+
+    void edit() {
+        String maGV = (String) tblGV.getValueAt(this.row, 0);
         GiangVien gv = gvDAO.selectById(maGV);
         this.setForm(gv);
         tpGV.setSelectedIndex(0);
         this.updateStatus();
     }
-    
+
     void updateStatus() {
-        boolean edit = (this.row >=0);
+        boolean edit = (this.row >= 0);
         boolean first = (this.row == 0);
         boolean last = (this.row == tblGV.getRowCount() - 1);
-        
+
         // Trạng thái form
-       txtMaGV.setEditable(!edit);
-       btnSave.setEnabled(!edit);
-       btnUpdate.setEnabled(edit);
-       btnDelete.setEnabled(edit);
-       
-       //Trạng thái điều hướng
-       btnFirst.setEnabled(edit && !first);
-       btnPrev.setEnabled(edit && !first);
-       btnNext.setEnabled(edit && !last);
-       btnLast.setEnabled(edit && !last);
+        txtMaGV.setEditable(!edit);
+        btnSave.setEnabled(!edit);
+        btnUpdate.setEnabled(edit);
+        btnDelete.setEnabled(edit);
+
+        //Trạng thái điều hướng
+        btnFirst.setEnabled(edit && !first);
+        btnPrev.setEnabled(edit && !first);
+        btnNext.setEnabled(edit && !last);
+        btnLast.setEnabled(edit && !last);
     }
-    
-    void setForm(GiangVien gv){
+
+    void setForm(GiangVien gv) {
         txtMaGV.setText(gv.getMaGV());
         txtTen.setText(gv.getTen());
         txtEmail.setText(gv.getEmail());
         txtSoDT.setText(gv.getSdt());
-        if(gv.getGioiTinh()){
+        if (gv.getGioiTinh()) {
             rdoMale.setSelected(true);
         } else {
             rdoFemale.setSelected(true);
@@ -736,13 +737,13 @@ public class homeGV extends javax.swing.JFrame {
         txtDiaChi.setText(gv.getDiaChi());
         this.upImage(gv.getAnh());
     }
-    
-    void getForm(GiangVien gv){
+
+    void getForm(GiangVien gv) {
         gv.setMaGV(txtMaGV.getText());
         gv.setTen(txtTen.getText());
         gv.setEmail(txtEmail.getText());
         gv.setSdt(txtSoDT.getText());
-        if (rdoMale.isSelected()){
+        if (rdoMale.isSelected()) {
             gv.setGioiTinh(true);
         } else {
             gv.setGioiTinh(false);
@@ -750,14 +751,14 @@ public class homeGV extends javax.swing.JFrame {
         gv.setDiaChi(txtDiaChi.getText());
         gv.setAnh(this.nameFile);
     }
-    
-    void search(){
+
+    void search() {
         int count = 0;
         try {
             this.setForm(gvDAO.selectById(txtSearch.getText()));
-            for(GiangVien gv : gvDAO.selectAll()){
+            for (GiangVien gv : gvDAO.selectAll()) {
                 count++;
-                if (gv.getMaGV().equals(txtSearch.getText())){
+                if (gv.getMaGV().equals(txtSearch.getText())) {
                     this.row = count;
                 }
             }
@@ -767,8 +768,8 @@ public class homeGV extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Mã giảng viên bạn đang tìm kiếm không tồn tại");
         }
     }
-    
-    public void inMon(String nganh){
+
+    public void inMon(String nganh) {
         cNTT.chonMon(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent e) {
                 xuatMon(e, nganh);
@@ -790,14 +791,14 @@ public class homeGV extends javax.swing.JFrame {
             }
         });
     }
-    
-    public void addComboBox(){
+
+    public void addComboBox() {
         String[] a = null;
-        
+
         cbNganh.setModel(new DefaultComboBoxModel(a));
     }
-    
-    public void fillTable(){
+
+    public void fillTable() {
         DefaultTableModel model = (DefaultTableModel) tblGV.getModel();
         model.setRowCount(0);
         try {
@@ -805,7 +806,7 @@ public class homeGV extends javax.swing.JFrame {
                 Object[] row = {
                     nh.getMaGV(),
                     nh.getTen(),
-                    nh.getGioiTinh()?"Nam":"Nữ",
+                    nh.getGioiTinh() ? "Nam" : "Nữ",
                     nh.getDiaChi(),
                     nh.getEmail(),
                     nh.getSdt(),
@@ -817,10 +818,10 @@ public class homeGV extends javax.swing.JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
-    
-    void insert(){
+
+    void insert() {
         try {
             GiangVien gv = new GiangVien();
             getForm(gv);
@@ -833,8 +834,8 @@ public class homeGV extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Save không thành công");
         }
     }
-    
-    void delete(){
+
+    void delete() {
         String maGV = txtMaGV.getText();
         try {
             gvDAO.delete(maGV);
@@ -846,12 +847,12 @@ public class homeGV extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Xóa không thành công");
         }
     }
-    
-    private void xuatMon(java.awt.event.ActionEvent e, String nganh){
+
+    private void xuatMon(java.awt.event.ActionEvent e, String nganh) {
         String in = null;
         if (nganh == "Công nghệ thông tin") {
             in = cNTT.vietMon();
-        } else if (nganh == "Thiết kế Web"){
+        } else if (nganh == "Thiết kế Web") {
             in = tKW.vietMon();
         } else if (nganh == "Thiết kế đồ họa") {
             in = tKDH.vietMon();
@@ -860,7 +861,7 @@ public class homeGV extends javax.swing.JFrame {
         }
         txtMon.setText(in);
     }
-    
+
     public void upImage(String hinh) {
         ImageIcon icon = new ImageIcon("D:\\NHAPMONKYTHUAT\\Assignment\\Nhom2_DuAn_QLSV\\src\\fpoly\\qlsv\\Image\\" + hinh);
         Image image = icon.getImage();
@@ -868,11 +869,11 @@ public class homeGV extends javax.swing.JFrame {
         lbImg.setIcon(icon1);
     }
 
-    public void chonNganh(String nganh){
+    public void chonNganh(String nganh) {
         if (nganh == "Công nghệ thông tin") {
             cNTT = new nganhCNTT();
             cNTT.setVisible(true);
-        } else if (nganh == "Thiết kế Web"){
+        } else if (nganh == "Thiết kế Web") {
             tKW = new nganhTKW();
             tKW.setVisible(true);
         } else if (nganh == "Thiết kế đồ họa") {
@@ -884,29 +885,28 @@ public class homeGV extends javax.swing.JFrame {
         }
         inMon(nganh);
     }
-    
-    void first(){
-        this.row = 0; 
+
+    void first() {
+        this.row = 0;
         this.edit();
     }
-    
-    void next(){
-        if(this.row < tblGV.getRowCount() -1){
+
+    void next() {
+        if (this.row < tblGV.getRowCount() - 1) {
             this.row++;
             this.edit();
         }
     }
-    
-    void prev(){
-        if(this.row > 0){
+
+    void prev() {
+        if (this.row > 0) {
             this.row--;
             this.edit();
         }
     }
-    
-    void last(){
-        this.row = tblGV.getRowCount() -1 ;
+
+    void last() {
+        this.row = tblGV.getRowCount() - 1;
         this.edit();
     }
 }
-

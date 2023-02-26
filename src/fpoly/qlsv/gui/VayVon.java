@@ -4,6 +4,7 @@
  */
 package fpoly.qlsv.gui;
 
+import fpoly.qlsv.entity.SinhVien;
 import fpoly.qlsv.entity.VayVon1;
 import java.awt.Color;
 import java.sql.Connection;
@@ -28,6 +29,7 @@ public class VayVon extends javax.swing.JFrame {
 
     DefaultTableModel tblModel;
     private List<VayVon1> list = new ArrayList<>();
+    private List<SinhVien> lisst = new ArrayList<>();
     private int current = 0;
     String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003@;encrypt=true;trustServerCertificate=true";
 
@@ -36,6 +38,7 @@ public class VayVon extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         initTable();
         loadDataToArray();
+        loadDataToArray1();
         fillTable();
     }
 
@@ -51,7 +54,7 @@ public class VayVon extends javax.swing.JFrame {
     }
 
     public void loadDataToArray() {
-        try ( Connection con = DriverManager.getConnection(connectionUrl);  Statement stmt = con.createStatement();) {
+        try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
             String sql = "select SinhVien.MaSV, TenSV,SoTien,NgayVay,HanTra,CMND,Sdt from VayVon join SinhVien on SinhVien.MaSV = VayVon.MaSV ";
 //            PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery(sql);
@@ -69,6 +72,30 @@ public class VayVon extends javax.swing.JFrame {
             }
 
         } // Handle any errors that may have occurred. // Handle any errors that may have occurred.
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadDataToArray1() {
+        try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
+            String SQL = "SELECT * FROM SinhVien";
+            ResultSet rs = stmt.executeQuery(SQL);
+            lisst.clear();
+
+            while (rs.next()) {
+                String masv = rs.getString(1);
+                String tensv = rs.getString(2);
+                boolean gt = rs.getBoolean(3);
+                String diachi = rs.getString(4);
+                String email = rs.getString(5);
+                String sodt = rs.getString(6);
+                String mal = rs.getString(8);
+                String anh = rs.getString(7);
+                SinhVien sv = new SinhVien(masv, tensv, gt, diachi, email, sodt, mal, anh);
+                lisst.add(sv);
+            }
+        } // Handle any errors that may have occurred.
         catch (SQLException e) {
             e.printStackTrace();
         }
@@ -157,7 +184,7 @@ public class VayVon extends javax.swing.JFrame {
             txtMasv.requestFocus();
             return;
         }
-        try ( Connection con = DriverManager.getConnection(connectionUrl);  Statement stmt = con.createStatement();) {
+        try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
             String SQL = "delete from VayVon where MaSV = ?";
             PreparedStatement st = con.prepareStatement(SQL);
             st.setString(1, txtMasv.getText());
@@ -181,7 +208,7 @@ public class VayVon extends javax.swing.JFrame {
     }
 
     public void Update() {
-        try ( Connection con = DriverManager.getConnection(connectionUrl);  Statement stmt = con.createStatement();) {
+        try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
             String SQL = "update VayVon set SoTien = ?, NgayVay =?, HanTra = ?, CMND = ? where MaSV = ?";
             PreparedStatement st = con.prepareStatement(SQL);
             st.setString(5, txtMasv.getText());
@@ -205,7 +232,7 @@ public class VayVon extends javax.swing.JFrame {
 
     public void Save() {
         if (CheckForm()) {
-            try ( Connection con = DriverManager.getConnection(connectionUrl);  Statement stmt = con.createStatement();) {
+            try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
                 String SQL = "insert into VayVon values(?,?,?,?,?)";
                 PreparedStatement st = con.prepareStatement(SQL);
                 st.setString(1, txtMasv.getText());
@@ -272,6 +299,7 @@ public class VayVon extends javax.swing.JFrame {
         btnAdd = new javax.swing.JButton();
         dtcNgayvay = new com.toedter.calendar.JDateChooser();
         dtcHantra = new com.toedter.calendar.JDateChooser();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -436,6 +464,11 @@ public class VayVon extends javax.swing.JFrame {
 
         jPanel3.setBackground(new java.awt.Color(204, 255, 204));
 
+        txtMasv.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtMasvFocusLost(evt);
+            }
+        });
         txtMasv.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtMasvActionPerformed(evt);
@@ -460,6 +493,9 @@ public class VayVon extends javax.swing.JFrame {
         jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel7.setText("CMND:");
 
+        txtHovaten.setEditable(false);
+        txtHovaten.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        txtHovaten.setForeground(new java.awt.Color(204, 0, 0));
         txtHovaten.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtHovatenActionPerformed(evt);
@@ -523,6 +559,13 @@ public class VayVon extends javax.swing.JFrame {
             }
         });
 
+        jButton1.setText("Exit");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -557,11 +600,13 @@ public class VayVon extends javax.swing.JFrame {
                                         .addComponent(dtcHantra, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
                     .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(btnDelete, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnAdd, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnUPDATE, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(btnDelete, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnAdd, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnUPDATE, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addGap(43, 43, 43))
         );
         jPanel3Layout.setVerticalGroup(
@@ -585,7 +630,6 @@ public class VayVon extends javax.swing.JFrame {
                             .addComponent(jLabel4))
                         .addGap(28, 28, 28))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnUPDATE, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(2, 2, 2)))
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -604,8 +648,9 @@ public class VayVon extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtSodienthoai, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel8))
-                .addContainerGap(66, Short.MAX_VALUE))
+                    .addComponent(jLabel8)
+                    .addComponent(jButton1))
+                .addContainerGap(64, Short.MAX_VALUE))
         );
 
         jToolBar1.add(jPanel3);
@@ -698,7 +743,9 @@ public class VayVon extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLastActionPerformed
 
     private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
-        System.exit(0);
+        MainForm main = new MainForm();
+        main.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnExitActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
@@ -736,6 +783,24 @@ public class VayVon extends javax.swing.JFrame {
     private void txtMasvActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMasvActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtMasvActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        MainForm main = new MainForm();
+        main.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void txtMasvFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtMasvFocusLost
+        // TODO add your handling code here:
+        if (!lisst.isEmpty()) {
+            for (SinhVien sv : lisst) {
+                if (sv.getMaSV().equalsIgnoreCase(txtMasv.getText())) {
+                    txtHovaten.setText(sv.getTenSV());
+                }
+            }
+        }
+    }//GEN-LAST:event_txtMasvFocusLost
 
     /**
      * @param args the command line arguments
@@ -786,6 +851,7 @@ public class VayVon extends javax.swing.JFrame {
     private javax.swing.JButton btnUPDATE;
     private com.toedter.calendar.JDateChooser dtcHantra;
     private com.toedter.calendar.JDateChooser dtcNgayvay;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel24;

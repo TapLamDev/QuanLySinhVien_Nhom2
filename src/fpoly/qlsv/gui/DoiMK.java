@@ -4,18 +4,79 @@
  */
 package fpoly.qlsv.gui;
 
+import QuanLyGiaoDuc.DAO.AccountDao;
+import Xjdbc.Auth;
+import fpoly.qlsv.entity.Account;
+import fpoly.qlsv.entity.SinhVien;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author hoang
  */
 public class DoiMK extends javax.swing.JFrame {
+// AccountDao dao = new AccountDao();
 
-    /**
-     * Creates new form DoiMK
-     */
+    private List<Account> list = new ArrayList<>();
+    String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=QLGD;user=sa;password=My27012003@";
+//    private int current = -1;
+
     public DoiMK() {
         initComponents();
         setLocationRelativeTo(null);
+        loadDataToArray();
+    }
+
+    public void Pass() {
+        int i = 0;
+        String tenTK = txtUser.getText();
+        String matKhau = new String(txtMatKhau.getPassword());
+        String mkMoi = new String(txtMatKhauMoi.getPassword());
+        String mkXacNhan = new String(txtXacNhan.getPassword());
+
+        if (!mkMoi.equals(mkXacNhan)) {
+            JOptionPane.showMessageDialog(this, "Xác nhận mật khẩu không đúng!");
+        } else {
+            try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
+                String SQL = "update TaiKhoan set MatKhauTK = ? where TenTK = ?";
+                PreparedStatement st = con.prepareStatement(SQL);
+                st.setString(1, mkMoi);
+                st.setString(2, txtUser.getText());
+                st.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Đổi mật khẩu thành công");
+                con.close();
+            } catch (Exception e) {
+                System.out.println(e);
+                JOptionPane.showMessageDialog(this, "Error");
+            }
+        }
+
+    }
+
+    public void loadDataToArray() {
+        try (Connection con = DriverManager.getConnection(connectionUrl); Statement stmt = con.createStatement();) {
+            String SQL = "SELECT * FROM TaiKhoan";
+            ResultSet rs = stmt.executeQuery(SQL);
+            list.clear();
+
+            while (rs.next()) {
+                String tenTK = rs.getString(1);
+                String matKhau = rs.getString(2);
+                Account sv = new Account(tenTK, matKhau);
+                list.add(sv);
+            }
+        } // Handle any errors that may have occurred.
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -52,6 +113,11 @@ public class DoiMK extends javax.swing.JFrame {
 
         btnDongY.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnDongY.setText("Đồng Ý");
+        btnDongY.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDongYActionPerformed(evt);
+            }
+        });
 
         txtXacNhan.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
@@ -136,8 +202,20 @@ public class DoiMK extends javax.swing.JFrame {
 
     private void btnHuyBoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHuyBoActionPerformed
         // TODO add your handling code here:
-        
+        MainForm main = new MainForm();
+        main.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnHuyBoActionPerformed
+
+    private void btnDongYActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDongYActionPerformed
+        // TODO add your handling code here:
+//        JOptionPane.showMessageDialog(this, "Đổi thành công!");
+//        txtMatKhau.setText("");
+//        txtMatKhauMoi.setText("");
+//        txtUser.setText("");
+//        txtXacNhan.setText("");
+        Pass();
+    }//GEN-LAST:event_btnDongYActionPerformed
 
     /**
      * @param args the command line arguments

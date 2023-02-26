@@ -109,6 +109,9 @@
         </Property>
         <Property name="text" type="java.lang.String" value="&#x110;&#x1ed3;ng &#xdd;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDongYActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JPasswordField" name="txtXacNhan">
       <Properties>
